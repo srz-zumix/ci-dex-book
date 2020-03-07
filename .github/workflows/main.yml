@@ -8,8 +8,6 @@ name: GitHub Actions
 jobs:
   review:
     runs-on: ubuntu-latest
-    # container:
-    #   image: docker://kauplan/review2.5
     steps:
       - uses: actions/checkout@v2
       - name: Checkout submodules
