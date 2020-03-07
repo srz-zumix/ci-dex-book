@@ -1,0 +1,3 @@
+[submodule "ci-dex/contents"]
+	path = ci-dex/contents
+	url = git@github.com:srz-zumix/ci-dex-review-contents.git

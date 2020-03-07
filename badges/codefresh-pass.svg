@@ -1,0 +1,40 @@
+<svg id="badge-round-green" xmlns="http://www.w3.org/2000/svg" width="128" height="20" viewBox="0 0 128 22">
+  <metadata><?xpacket begin="﻿" id="W5M0MpCehiHzreSzNTczkc9d"?>
+<x:xmpmeta xmlns:x="adobe:ns:meta/" x:xmptk="Adobe XMP Core 5.6-c138 79.159824, 2016/09/14-01:09:01        ">
+   <rdf:RDF xmlns:rdf="http://www.w3.org/1999/02/22-rdf-syntax-ns#">
+      <rdf:Description rdf:about=""/>
+   </rdf:RDF>
+</x:xmpmeta>
+<?xpacket end="w"?></metadata>
+<defs>
+    <style>
+      .cls-1, .cls-4 {
+        fill: #fff;
+      }
+
+      .cls-1, .cls-2 {
+        stroke: #1abc9c;
+        stroke-width: 1px;
+      }
+
+      .cls-2, .cls-3, .cls-5 {
+        fill: #1abc9c;
+      }
+
+      .cls-2, .cls-5 {
+        fill-rule: evenodd;
+      }
+
+      .cls-3, .cls-4 {
+        font-size: 11px;
+        font-weight: 700;
+        text-transform: uppercase;
+      }
+    </style>
+  </defs>
+  <rect id="Rounded_Rectangle_2" data-name="Rounded Rectangle 2" class="cls-1" x="0.5" y="0.5" width="125" height="20" rx="10" ry="10"/>
+  <path id="Rounded_Rectangle_2-2" data-name="Rounded Rectangle 2" class="cls-2" d="M505,138h54a10.513,10.513,0,0,1,0,21H505" transform="translate(-441.5 -137.5)"/>
+  <text id="Build" class="cls-3" x="24.5" y="15"  font-family="Lato, 'opens sans', arial, sans-serif">Build</text>
+  <text id="passing" class="cls-4" x="93" y="15" text-anchor="middle" font-family="Lato, 'opens sans', arial, sans-serif">Success</text>
+  <path id="_-e-cf-leaf" data-name="-e-cf-leaf" class="cls-5" d="M455.339,145.119a7.784,7.784,0,0,1,1.695,6.547,5.373,5.373,0,0,0,3.617-4.213s0.819-3.074,2.091-4.355C460.227,143.5,459.973,142.5,455.339,145.119Zm0.48,7.457,0.006,0c0.057-.313.983-3.505-0.853-6.095a13.275,13.275,0,0,0-7.714-3.928c0.9,1.765.933,3.416,1.922,6.774,1.2,3.481,5.614,3.716,5.94,3.729a3.691,3.691,0,0,0,2.534,1.44l0.173-.83A2.872,2.872,0,0,1,455.819,152.576Zm-4.33-4.314a10.359,10.359,0,0,0-2.529-4.154s3.494,0.928,5.513,7.522A4.92,4.92,0,0,1,451.489,148.262Z" transform="translate(-441.5 -137.5)"/>
+</svg>

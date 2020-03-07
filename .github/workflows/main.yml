@@ -1,0 +1,68 @@
+on:
+  push:
+    paths:
+      - 'ci-dex/**'
+      - '.github/workflows/**'
+
+name: GitHub Actions
+jobs:
+  review:
+    runs-on: ubuntu-latest
+    # container:
+    #   image: docker://kauplan/review2.5
+    steps:
+      - uses: actions/checkout@v2
+      - name: Checkout submodules
+        uses: actions/checkout@v2
+        with:
+          repository: srz-zumix/ci-dex-review-contents
+          token: ${{ secrets.GitHub_PAT }}
+          path: ci-dex/contents
+      - uses: docker://kauplan/review2.5
+        with:
+          entrypoint: bash
+          args: -c "cd book; rake preproc pdf"
+      - name: copy artifacts
+        run: |
+          mkdir artifacts
+          cp ci-dex/ci-dex.pdf ./artifacts
+      # 電子書籍版
+      - uses: docker://kauplan/review2.5
+        env:
+          config: config-e.yml
+        with:
+          entrypoint: bash
+          args: -c "cd ci-dex; rake preproc pdf"
+      - name: copy artifacts
+        run: |
+          cp ci-dex/ci-dex.pdf ./artifacts/e-ci-dex.pdf
+      - name: Extract branch name
+        id: extract_branch
+        run: |
+          NAME=${GITHUB_REF#refs/heads/}
+          echo "##[set-output name=branch;]$(echo ${NAME#refs/tags/})"
+      # - uses: actions/upload-artifact@v1
+      #   with:
+      #     name: ci-dex
+      #     path: ci-dex/ci-dex.pdf
+      - name: Upload to Google Drive
+        uses: satackey/action-google-drive@v1
+        with:
+          upload-from: ./artifacts
+          upload-to: /BOOK/techbookfest/ci-dex/${{ steps.extract_branch.outputs.branch }}
+          skicka-tokencache-json: ${{ secrets.SKICKA_TOKENCACHE_JSON }}
+          google-client-id: ${{ secrets.SKICKA_CLIENT_ID }}
+          google-client-secret: ${{ secrets.SKICKA_CLIENT_SECRET }}
+      - name: Notify slack
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: pullreminders/slack-action@master
+        with:
+          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"Upload new pdf!!\"}'
+      - name: Notify slack (fail)
+        if: failure()
+        env:
+          SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
+        uses: pullreminders/slack-action@master
+        with:
+          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/techbookfest8/actions\"}'
