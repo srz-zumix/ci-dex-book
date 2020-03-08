@@ -19,7 +19,7 @@ jobs:
       - uses: docker://kauplan/review2.5
         with:
           entrypoint: bash
-          args: -c "cd book; rake preproc pdf"
+          args: -c "cd ci-dex; rake preproc pdf"
       - name: copy artifacts
         run: |
           mkdir artifacts
@@ -64,4 +64,4 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: pullreminders/slack-action@master
         with:
-          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/techbookfest8/actions\"}'
+          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/ci-dex-book/actions\"}'
