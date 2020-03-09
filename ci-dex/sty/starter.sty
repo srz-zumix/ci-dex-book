@@ -53,8 +53,10 @@
   \definecolor{starter@quotecolor}{gray}{0.4}       % gray
      \colorlet{starter@linkcolor}{black}            % black
      \colorlet{starter@chaptitlepagecolor}{starter@palecolor}
-  \definecolor{starter@programcolor}{gray}{0.9}     % dark black
-  \definecolor{starter@terminalcolor}{gray}{0.1}    % light gray
+  \definecolor{starter@programcolor}{gray}{0.9}     % light gray
+  \definecolor{starter@terminalcolor}{gray}{0.1}    % dark black
+  \definecolor{starter@program@indentcolor}{gray}{0.95} % ultra light gray
+  \definecolor{starter@terminal@indentcolor}{gray}{0.18}% dark black
 %%% カラー（RGB、タブレット向け）
 \else\ifstreq{\starter@colormode}{rgb}
   \definecolor{starter@deepcolor}{HTML}{990000}     % red
@@ -69,6 +71,8 @@
      \colorlet{starter@chaptitlepagecolor}{starter@palecolor}
   \definecolor{starter@programcolor}{HTML}{E5E5E5}  % light gray
   \definecolor{starter@terminalcolor}{HTML}{191919} % dark black
+  \definecolor{starter@program@indentcolor}{HTML}{F2F2F2}  % ultra light gray
+  \definecolor{starter@terminal@indentcolor}{HTML}{2E2E2E} % dark black
 %%% カラー（CYMK、紙書籍向け）
 \else\ifstreq{\starter@colormode}{cmyk}
   \definecolor{starter@deepcolor}{cmyk}{0.0,1.0,1.0,0.4}     % red
@@ -83,12 +87,68 @@
      \colorlet{starter@chaptitlepagecolor}{starter@palecolor}
   \definecolor{starter@programcolor}{cmyk}{0.0,0.0,0.0,0.1}  % light gray
   \definecolor{starter@terminalcolor}{cmyk}{0.0,0.0,0.0,0.9} % dark black
+  \definecolor{starter@program@indentcolor}{cmyk}{0.0,0.0,0.0,0.95} % ultra light gray
+  \definecolor{starter@terminal@indentcolor}{cmyk}{0.0,0.0,0.0,0.18}% dark black
 \fi%\fi\fi
 
 
 %%% 目次やリンクの色を指定する。印刷用なら黒にする。
 \hypersetup{colorlinks=true,linkcolor=starter@linkcolor,urlcolor=starter@linkcolor}
 %\hypersetup{colorlinks=false}   % リンク機能をオフにする
+
+
+
+%%%
+%%% 本文のフォントを設定
+%%%
+%%% （参考までに）
+%%% ・日本語は「明朝体」(\mcfamily)と「ゴシック体」(\gtfamily)がある。
+%%% ・英数字は「ローマン体」(\rmfamily)と「サンセリフ体」(\sffamily)と「タイプライター体」(\ttfamily)がある。
+%%% ・通常は「明朝体とローマン体」「ゴシック体とサンセリフ体」の組で使う。
+%%%
+\ifstreq{\starter@fontweight@ja}{light}
+  %% 日本語フォントの太さを細くする
+  %% （Notoフォントを使っていることが前提なので、Docker環境を使うか、
+  %%   Notoフォントを自分でインストールすること）
+  %% 参考：https://tm23forest.com/contents/veryeasy-latex-meiryo-font
+  \special{pdf:mapline uphminr-h unicode NotoSerifCJK-Light.ttc}  % 明朝体
+  \special{pdf:mapline uphgothr-h unicode NotoSansCJK-Light.ttc}  % ゴシック体
+  \special{pdf:mapline uphminb-h unicode NotoSerifCJK-Medium.ttc} % 明朝体（太字）
+  \special{pdf:mapline uphgothb-h unicode NotoSansCJK-Medium.ttc} % ゴシック体（太字）
+\else
+  %% 英数字のサンセリフ体をHelveticaに変更
+  %% （LaTeXのデフォルトであるComputerModernより少し太めなので、
+  %%   日本語フォントを細くした場合は使わないほうがいい）
+  \renewcommand{\sfdefault}{phv}
+\fi
+\ifstreq{\starter@fontweight@en}{light}
+  %% 英語のローマン体フォントを細いものに変更
+  %% 参考：https://tug.org/FontCatalogue/sourceserifprolight/
+  %%       https://tug.org/FontCatalogue/iwonalight/
+  \usepackage[light,math]{iwona}
+  \renewcommand{\bfdefault}{bx}    % 日本語の太字が効くように修正(iwona)
+  %\usepackage[light,semibold]{sourceserifpro}
+  %\renewcommand{\bfseries@rm}{bx} % 日本語の太字が効くように修正(sourceserifpro)
+  %% 英語のサンセリフ体フォントを細いものに変更
+  %% 参考：https://tug.org/FontCatalogue/robotolight/
+  %%       https://tug.org/FontCatalogue/firasanslight/
+  \usepackage[light,medium]{roboto}
+  %\usepackage[light]{FiraSans}
+  \renewcommand{\bfseries@sf}{bx}  % 日本語の太字が効くように修正(roboto,FiraSans)
+\fi
+\ifstreq{\starter@fontfamily@ja}{gothic}
+  \renewcommand\kanjifamilydefault{\gtdefault} % 日本語のデフォルトをゴシック体に変更
+\fi
+\ifstreq{\starter@fontfamily@en}{sansserif}
+  \renewcommand\familydefault{\sfdefault}      % 英数字のデフォルトをサンセリフ体に変更
+  %% 英数字のデフォルトフォントを細いサンセリフ体に変更しても、
+  %% 脚注の英数字が細くならないバグを回避するハック
+  %% see https://twitter.com/_kauplan/status/1223641864189857793
+  \let\original@@footnotetext=\@footnotetext
+  \long\def\@footnotetext#1{%
+    \original@@footnotetext{{\mdseries #1}}%   % フォントの太さを明示する
+  }
+\fi
 
 
 
@@ -116,13 +176,22 @@
 }
 
 %% 「@<code>{...}」を薄いグレーで囲む
+%% （ただし章や節のタイトル、および各種キャプションでは囲まない）
 \ifx\starter@inlinecode@gray\empty
+  \renewcommand{\reviewcode}[2][]{%
+    %\,%                                  % ほんの少しスペースを入れる
+    \texttt{#2}%
+    %\,%                                  % ほんの少しスペースを入れる
+  }
 \else
-  \renewcommand{\reviewcode}[1]{%
+  \renewcommand{\reviewcode}[2][]{%       % #1：空 or 'headline' or 'caption'
     \,%                                   % ほんの少しスペースを入れる
-    \colorbox{shadecolor}{%               % 背景色を薄いグレーに変更
-      \texttt{#1}%                        % 文字種を等幅フォントに変更
-    }%
+    \edef\@tmpA{#1}%
+    \ifx\@tmpA\empty%                     % #1が空（未指定）なら
+      \colorbox{shadecolor}{\texttt{#2}}% %   背景色を薄いグレーにして等幅フォントで表示
+    \else%                                % #1がheadlineやcaptionなら
+      \texttt{#2}%                        %   等幅フォントで表示（背景色なし）
+    \fi%
     \,%                                   % ほんの少しスペースを入れる
   }
 \fi
@@ -151,9 +220,9 @@
 }
 %%% lmodern-lighttt … 細字にするオプションをつけたlmodern。太字が目立つ。
 \starter@loadttfont{lmodern-lighttt}{
-  %\usepackage[lighttt]{lmodern}
-  \usepackage{lmodern}
-  \let\lmtt@use@light@as@normal\@empty    % enable 'lighttt' option
+  \usepackage[lighttt]{lmodern}
+  %\usepackage{lmodern}
+  %\let\lmtt@use@light@as@normal\@empty    % enable 'lighttt' option
 }
 %%% courier … 文字が細い。文字幅が広め。1とl、0とOが見分けにくい。
 \starter@loadttfont{courier}{
@@ -386,6 +455,7 @@
   \ifempty\startercodeblockfontsize\else%           % fontsizeオプションが指定されていたら
     \csname\startercodeblockfontsize\endcsname%     % その大きさに変更する
   \fi%
+  \def\starterindentchar{\starter@program@indentchar}% インデント用記号（「|」）
   \edef\starter@codeblock@widen{\starter@program@widen}% 幅をほんの少し広げる
   \@starter@codeblock@border@toggle{\starter@program@border}% 枠をつける/つけない
   \setlength{\baselineskip}{0.85\baselineskip}%     % 行間を狭める
@@ -409,6 +479,7 @@
   \ifempty\startercodeblockfontsize\else%           % fontsizeオプションが指定されていたら
     \csname\startercodeblockfontsize\endcsname%     % その大きさに変更する
   \fi%
+  \def\starterindentchar{\starter@terminal@indentchar}% インデント用記号（「|」）
   \edef\starter@codeblock@widen{\starter@terminal@widen}% 幅をほんの少し広げる
   \@starter@codeblock@border@toggle{\starter@terminal@border}% 枠をつける/つけない
   \setlength{\baselineskip}{0.85\baselineskip}%     % 行間を狭める
@@ -445,7 +516,7 @@
 }
 \newcommand{\starter@fold@char}{%
   \mdseries\rmfamily%                        % 通常の太さのローマン体
-  \textcolor{gray}{\char"0F}%                % グレーの '>'
+  \textcolor{gray}{\guilsinglright}%         % グレーの '>'
   %\tiny\textcolor{gray}{\raisebox{0.5mm}{$\blacktriangleright$}}% % 右向きの三角形
 }
 \newcommand{\starter@fold@contchar}{%        % 折り返し後の継続行の頭につける記号
@@ -522,6 +593,20 @@
 }
 \newcommand{\startereolmarkdark}{%           % terminal用
   \colorlet{starter@eol@color}{darkgray}%    %   濃いグレーを使う
+}
+
+
+
+%%% コードブロックのインデントを示す記号（「|」）
+\newcommand{\starterindentchar}{}            % コードブロックの中で上書きされる
+\newcommand{\starter@indentchar}{%
+  {|}%                                       % インデントを表す記号
+}
+\newcommand{\starter@program@indentchar}{%   % プログラム用
+  \textcolor{starter@program@indentcolor}{\starter@indentchar}% 色つきで表示
+}
+\newcommand{\starter@terminal@indentchar}{%  % ターミナル用
+  \textcolor{starter@terminal@indentcolor}{\starter@indentchar}% 色つきで表示
 }
 
 
@@ -683,10 +768,25 @@
     \makebox[3.5zw][c]{\textcolor{white}{\thesection}}%         % 白文字で節番号
     \hspace{0.7zw}%                                             % タイトル前のスペース
   }
-  \newcommand{\starter@section@background}[2]{%
-    \makebox[0pt][l]{%                                          % 幅をゼロ扱いにする
-      \textcolor{#1}{\rule[-0.6zw]{#2}{2zw}}%                   % 指定幅の背景を描く
-    }%
+\fi
+\newcommand{\starter@section@background}[2]{%
+  \makebox[0pt][l]{%                                            % 幅をゼロ扱いにする
+    \textcolor{#1}{\rule[-0.6zw]{#2}{2zw}}%                     % 指定幅の背景を描く
+  }%
+}
+%%% 節タイトルの左側に縦線を引く（タイトルが二行になっても表示が崩れない）
+\ifstreq{\starter@section@decoration}{leftline}
+  \newcommand{\starter@section@formatnumber}{%
+    \starter@section@background{starter@deepcolor}{0.5zw}%      % 0.5文字幅の線
+    \hspace{1.1zw}\thesection\hspace{0.8zw}%                    % 節番号
+  }
+\fi
+%%% 節番号を黒い背景で白抜きにする（タイトルが二行になっても表示が崩れない）
+\ifstreq{\starter@section@decoration}{numbox}
+  \newcommand{\starter@section@formatnumber}{%
+    \starter@section@background{starter@deepcolor}{3.2zw}%      % 3.2文字分の黒色背景
+    \makebox[3.2zw][c]{\textcolor{white}{\thesection}}%         % 白文字で節番号
+    \hspace{0.9zw}%                                             % タイトル前のスペース
   }
 \fi
 
@@ -704,11 +804,16 @@
       \normalfont\large\headfont%           % フォントを本文より少し大きめに
       \def\@tempa{symbol}%
       \ifx\@decoration\@tempa%
-        \textcolor{starter@subsectioncolor}{$▶$ }% 頭にクローバー
+        \textcolor{starter@subsectioncolor}{\startersubsectionsymbol}% 頭にクローバー
       \fi%
     }%
 }
-
+\newcommand{\starter@subsection@symbol}{$▶$ }% クローバー
+\ifstreq{\starter@subsection@decoration}{symbol}
+  \newcommand{\startersubsectionsymbol}{\starter@subsection@symbol{} }
+\else
+  \newcommand{\startersubsectionsymbol}{}
+\fi
 
 
 %%% ページ先頭なら節や項のタイトル前にスペースを入れない
@@ -774,10 +879,10 @@
   %
   %\chapter*{\contentsname}%
   %% 章も目次も右起こしにする or しない
-  %\if@openleft\cleardoublepage\else
-  %\if@openright\cleardoublepage\else\clearpage\fi\fi
+  \if@openleft\cleardoublepage\else
+  \if@openright\cleardoublepage\else\clearpage\fi\fi
   %% 章が右起こしでも、目次は右起こしにしない
-  \clearpage
+  %\clearpage
   %
   \plainifnotempty
   \@makechapterhead{\contentsname}
@@ -853,19 +958,19 @@
 
 
 %%% ページヘッダーの形式を変更（fancyhdr.styを使用）
-\newcommand{\pageheaderfont}{\footnotesize\gtfamily\sffamily}           % ゴシック体
-%\newcommand{\pageheaderfont}{\footnotesize\gtfamily\sffamily\bfseries} % ゴシック体、太字
+\newcommand{\pageheaderfont}{\small\gtfamily\sffamily}           % ゴシック体
+%\newcommand{\pageheaderfont}{\small\gtfamily\sffamily\bfseries} % ゴシック体、太字
 %%% 紙書籍のような右起こしの場合（左ページに章タイトル、右ページに節タイトル）
-%\lhead[\pageheaderfont\leftmark]{}
-%\rhead[]{\pageheaderfont\rightmark}
+\lhead[\pageheaderfont\leftmark]{}
+\rhead[]{\pageheaderfont\rightmark}
 %%% タブレット向けのような両起こしの場合（両ページに章タイトルと節タイトル）
-\lhead{\pageheaderfont\leftmark}
-\rhead{\pageheaderfont\rightmark}
+%\lhead{\pageheaderfont\leftmark}
+%\rhead{\pageheaderfont\rightmark}
 
 %%% ページ番号のスタイル
 %\newcommand{\pagenumberstyle}{\thepage}                   % 例：「1」
 %\newcommand{\pagenumberstyle}{\itshape\bfseries\thepage}  % 太字、斜体
-\newcommand{\pagenumberstyle}{--\ \thepage\ --}            % 例：「-- 1 --」
+\newcommand{\pagenumberstyle}{\rmfamily --\ \thepage\ --}  % 例：「-- 1 --」
 % \newcommand{\pagenumberstyle}{\itshape --\ \thepage\ --} % 斜体
 
 %%% ページ番号をページフッタに表示（fancyhdr.styを使用）
@@ -1013,8 +1118,16 @@
 
 %%% @<hd>{} や @<subsec>{} で、節や項へのリンクを作成
 %%% （config.yml で「chapterlink: true」の設定が必要）
-\renewcommand{\reviewsecref}[2]{%
-  \hyperref[#2]{#1}(p.\pageref{#2})%     % 節や項のタイトルがリンク
+\newcommand{\startersecref}[2]{%
+  「\hyperref[#2]{#1}」(p.\pageref{#2})%     % 節や項のタイトルがリンク
+  %{#1}(\hyperref[#2]{p.\pageref{#2}})%  % ページ番号がリンク
+}
+\newcommand{\startersubsecref}[2]{%
+  「\hyperref[#2]{{\startersubsectionsymbol}#1}」(p.\pageref{#2})%     % 節や項のタイトルがリンク
+  %{\startersubsectionsymbol}{#1}(\hyperref[#2]{p.\pageref{#2}})%  % ページ番号がリンク
+}
+\newcommand{\startersubsubsecref}[2]{%
+  「\hyperref[#2]{#1}」(p.\pageref{#2})%     % 節や項のタイトルがリンク
   %{#1}(\hyperref[#2]{p.\pageref{#2}})%  % ページ番号がリンク
 }
 
@@ -1075,10 +1188,10 @@
 
 
 %%% ノート
-\newenvironment{starternote}[1]{%
+\newenvironment{starternote}[2][]{%
   \addvspace{\bigskipamount}%           % \bigskipと違い、直前の余白の高さも考慮してくれる
   \@starter@notetrue%
-  \begin{starter@note}{#1}%
+  \begin{starter@note}[#1]{#2}%
 }{%
   \end{starter@note}%
   \@starter@notefalse%
@@ -1091,7 +1204,7 @@
 %%% itemize環境やenumerate環境で使われる\listコマンドを保存
 \let\original@list=\list
 %%% ノートブロック
-\newenvironment{starter@note}[1]{%
+\newenvironment{starter@note}[2][]{%
   %% ノートの左右に余白を空ける
   \advance\rightskip\starter@note@sidemargin%
   \advance\leftskip\starter@note@sidemargin%
@@ -1115,9 +1228,14 @@
   %
   \noindent\starter@note@line%    % 点線
   \smallskip%
-  \ifempty{#1}\else%              % ノートにタイトルがあれば
+  \ifempty{#1}\else%              % ノートに参照用ラベルがあれば
+    \phantomsection%              % hyperref用
+    \hypertarget{#1}{}%           % hyperref用
+    \label{#1}%
+  \fi%
+  \ifempty{#2}\else%              % ノートにタイトルがあれば
     \par\noindent%
-    \starter@note@title{#1}%      % ノートのタイトルを表示
+    \starter@note@title{#2}%      % ノートのタイトルを表示
     \smallskip%
   \fi%
   \par%
@@ -1157,6 +1275,12 @@
 %\renewcommand{\starter@note@title}[1]{{%
 %  \gtfamily\sffamily\bfseries\normalsize ■ノート：#1
 %}}
+
+
+%%% @<noteref>{lable} でノートを参照する
+\newcommand{\starternoteref}[2]{%
+  ノート「\hyperlink{#1}{#2}」(p.\pageref{#1})%
+}
 
 
 

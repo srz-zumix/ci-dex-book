@@ -29,3 +29,8 @@
 #
 #end
 #
+
+desc "clean root *.re"
+task :clean do
+    rm_f Dir.glob('*.re'), :verbose=>false
+end

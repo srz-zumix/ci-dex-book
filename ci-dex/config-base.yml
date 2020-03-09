@@ -133,7 +133,7 @@ toc: true
 # cover: null
 #
 # 表紙に配置し、書籍の影絵にも利用する画像ファイル。省略した場合はnull (画像を使わない)。画像ディレクトリ内に置いてもディレクトリ名は不要(例: cover.jpg)
-# coverimage: cover4.jpg
+#coverimage: cover.jpg
 #
 # 表紙の後に大扉ページを作成するか。省略した場合はtrue (作成する)
 titlepage: true
@@ -181,6 +181,13 @@ imagedir: contents/images
 
 # カタログファイル名を指定する
 # catalogfile: catalog.yml
+
+# reファイルを格納するディレクトリ。デフォルト値は null。
+# 値にたとえば「contents」を指定すると、reファイルはすべて「contents」
+# ディレクトリに置かなければならず、カレントディレクトリには一切置いては
+# ならない。
+# contentdir: null
+contentdir: contents
 
 # 1ページの行数文字数と1kbごとのページ数を用紙サイズで指定する(A5 or B5)。
 # page_metric: A5
@@ -283,23 +290,23 @@ texstyle: [reviewmacro, starter, mystyle, mytitlepage, mycolophon]
 # LaTeX用のdocumentclassを指定する
 # texdocumentclass: ["jsbook", "uplatex,oneside"]
 texdocumentclass: ["jsbook",
-    #"uplatex,papersize,twoside,b5j,10pt,openright" # B5 10pt 右起こし
-    #"uplatex,papersize,twoside,b5j,10pt,openany"   # B5 10pt 両起こし
-    #"uplatex,papersize,twoside,a5j,9pt,openright"  # A5  9pt 右起こし
-    #"uplatex,papersize,twoside,a5j,9pt,openany"    # A5  9pt 両起こし
-    #"uplatex,papersize,oneside,a5j,10pt,openany"   # A5 10pt 両起こし（タブレット向け）
-    "uplatex,papersize,twoside,b5j,10pt,openany"
+    #"dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openright" # B5 10pt 右起こし
+    #"dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openany"   # B5 10pt 両起こし
+    #"dvipdfmx,uplatex,papersize,twoside,a5j,9pt,openright"  # A5  9pt 右起こし
+    #"dvipdfmx,uplatex,papersize,twoside,a5j,9pt,openany"    # A5  9pt 両起こし
+    #"dvipdfmx,uplatex,papersize,oneside,a5j,10pt,openany"   # A5 10pt 両起こし（タブレット向け）
+    "dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openany"
 ]
 #
 # LaTeX用のコマンドを指定する
-# texcommand: "uplatex"
+texcommand: uplatex
 #
 # LaTeXのコマンドに渡すオプションを指定する
 # texoptions: null
 texoptions: "-halt-on-error -file-line-error"  # エラー時にインタラクティブモードにしない、エラー箇所はファイル名つきで表示
 #
 # LaTeX用のdvi変換コマンドを指定する(dvipdfmx)
-# dvicommand: "dvipdfmx"
+dvicommand: dvipdfmx
 #
 # LaTeX用のdvi変換コマンドのオプションを指定する
 dvioptions: "-d 5 -z 3"  # -z 9 だと画像を最大圧縮する（ただし時間がかかる）
@@ -333,14 +340,13 @@ pdfmaker:
   colophon: true
   #
   # 表紙に配置し、書籍の影絵にも利用する画像ファイル。同人誌の印刷では一般的に、表紙は本文と別ファイルにするので、ここはnullにする。
-  # coverimage: cover4.jpg
-
-  # 表紙ページの挿入 for Starter
-  # coverimage: null
-  ### Starterでは、表紙をPDFで用意してください
-  # coverpdf_files: [cover.pdf]  # PDFファイル名（複数可）
-  # coverpdf_option: "offset=-0.23cm 0.23cm" # 必要に応じて調整
-
+  #coverimage: null
+  ### Starterでは、表紙をPDFで用意してください。電子用PDFでのみ挿入されます。
+  ### ・デフォルトでは印刷用PDFが生成させるので挿入されません。
+  ### ・config-starter.ymlで「target: ebook」を設定するか、または
+  ###   環境変数「STARTER_TARGET=ebook」を設定すると、電子用になり挿入されます。
+  coverpdf_files: [cover_b5.pdf]  # PDFファイル名（複数指定可）（PNGやJPGはダメ）
+  coverpdf_option: "offset=-2.4mm 2.4mm" # 必要に応じて微調整すること
   #
   # pdfmaker:階層を使うものはここまで
 

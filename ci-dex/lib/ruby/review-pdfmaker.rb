@@ -11,6 +11,7 @@
 
 require 'date'
 require 'pathname'
+require 'digest/md5'
 require 'rbconfig'
 require 'review/pdfmaker'
 
@@ -415,6 +416,9 @@ module ReVIEW
     ## コンパイルメッセージを減らすために、uplatexコマンドをバッチモードで起動する。
     ## エラーがあったら、バッチモードにせずに再コンパイルしてエラーメッセージを出す。
     def run_latex!(latex, file)
+      ## *.tocファイルのハッシュ値を計算する
+      tocfile = file.sub(/\.tex\z/, '.toc')
+      oldhash = _filehash(tocfile)
       ## invoke latex command with batchmode option in order to suppress
       ## compilation message (in other words, to be quiet mode).
       ok = run_cmd("#{latex} -interaction=batchmode #{file}")
@@ -427,18 +431,31 @@ module ReVIEW
         $stderr.puts "*"
         run_cmd!("#{latex} #{file}")
       end
+      ## *.tocファイルのハッシュ値を計算し、コンパイル前と変わっていたらtrueを返す。
+      ## （つまりもう一度コンパイルが必要ならtrueを返す。）
+      newhash = _filehash(tocfile)
+      return oldhash.nil? || oldhash != newhash
       ## LaTeXのログファイルに「ラベルが変更された」と出ていたらtrueを返す。
       ## （つまりもう一度コンパイルが必要ならtrueを返す。）
-      logfile = file.sub(/\.tex\z/, '.log')
-      begin
-        lines = File.open(logfile, 'r') {|f|
-          f.grep(/^LaTeX Warning: Label\(s\) may have changed./)
-        }
-        return !lines.empty?
-      rescue IOError
-        return true
-      end
+      ## → この方法は、ページ番号が変わったことは検出できても、
+      ##    章や節のタイトルが変わったことを検出できない。
+      #logfile = file.sub(/\.tex\z/, '.log')
+      #begin
+      #  lines = File.open(logfile, 'r') {|f|
+      #    f.grep(/^LaTeX Warning: Label\(s\) may have changed./)
+      #  }
+      #  return !lines.empty?
+      #rescue IOError
+      #  return true
+      #end
     end
+
+    def _filehash(filepath)
+      return nil unless File.exist?(filepath)
+      binary = File.open(filepath, 'rb') {|f| f.read() }
+      return Digest::MD5.hexdigest(binary)
+    end
+    private :_filehash
 
     ## 開発用。LaTeXコンパイル回数を環境変数で指定する。
     if ENV['STARTER_COMPILETIMES']
@@ -476,19 +493,19 @@ module ReVIEW
       return unless File.exist?(from)
       FileUtils.mkdir_p(to)
       ReVIEW::MakerHelper.copy_images_to_dir(from, to)
-      Dir.chdir(to) do
-        images = Dir.glob('**/*.{jpg,jpeg,png,pdf,ai,eps,tif,tiff}')
-        images = images.find_all {|f| File.file?(f) }
-        break if images.empty?
-        d = @config[@maker_name]
-        if d['bbox']
-          system('extractbb', '-B', d['bbox'], *images)
-          system_or_raise('ebb', '-B', d['bbox'], *images) unless system('extractbb', '-B', d['bbox'], '-m', *images)
-        else
-          system('extractbb', *images)
-          system_or_raise('ebb', *images) unless system('extractbb', '-m', *images)
-        end
-      end
+#|      Dir.chdir(to) do
+#|        images = Dir.glob('**/*.{jpg,jpeg,png,pdf,ai,eps,tif,tiff}')
+#|        images = images.find_all {|f| File.file?(f) }
+#|        break if images.empty?
+#|        d = @config[@maker_name]
+#|        if d['bbox']
+#|          system('extractbb', '-B', d['bbox'], *images)
+#|          system_or_raise('ebb', '-B', d['bbox'], *images) unless system('extractbb', '-B', d['bbox'], '-m', *images)
+#|        else
+#|          system('extractbb', *images)
+#|          system_or_raise('ebb', *images) unless system('extractbb', '-m', *images)
+#|        end
+#|      end
     end
 
     def copy_sty(dirname, copybase, extname = 'sty')

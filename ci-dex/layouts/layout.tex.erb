@@ -2,8 +2,24 @@
 
 ## based on Re:VIEW 2.4
 
+def xelatex?()
+  @texcompiler == 'xelatex'
+end
+
+case @dvicommand
+when 'dvipdfmx'
+  dvipdfmx  = 'dvipdfmx'
+  dvipdfmx_ = 'dvipdfmx,'
+when nil, ''
+  dvipdfmx  = ''
+  dvipdfmx_ = ''
+else
+  dvipdfmx  = 'dvipdfmx'
+  dvipdfmx_ = 'dvipdfmx,'
+end
+
 %>
-\documentclass[dvipdfmx,<%= @documentclassoption %>]{<%= @documentclass %>}
+\documentclass[<%= @documentclassoption %>]{<%= @documentclass %>}
 % %% fixes to LaTeX2e
 % \usepackage{fix-cm}[2006/09/13 v1.1m]
 % \usepackage{fixltx2e}[2006/09/13 v1.1m]
@@ -11,6 +27,7 @@
 
 %% copy values from 'config-starter.yml'
 \makeatletter
+<%- length_keys = ['caption_needspace', 'program_widen', 'terminal_widen'] -%>
 <%- @config['starter'].each do |k, v| -%>
 <%-   if k == 'target' -%>
 <%-     target = ENV['STARTER_TARGET'].to_s -%>
@@ -19,7 +36,15 @@
 <%-     v = v == true ? 'Y' : v == false ? '' : v.to_s -%>
 <%-   end -%>
 <%-   if v =~ /\A[-a-zA-Z0-9!'`*+,.\/:;=?@\[\]()]*\z/ -%>
-\def\starter@<%= k.gsub('_', '@') %>{<%= v %>}
+<%-     x = 'starter@' + k.gsub('_', '@') -%>
+<%-     if length_keys.include?(k) -%>
+<%-       #v = v.sub(/\b(z[wh])$/, '\\zw') -%>
+%\def\<%= x %>{<%= v %>}
+\newlength{\<%= x %>}
+\setlength{\<%= x %>}{<%= v %>}
+<%-     else -%>
+\def\<%= x %>{<%= v %>}
+<%-     end -%>
 <%-   end -%>
 <%- end -%>
 \makeatother
@@ -38,19 +63,21 @@
 
 <%- if @texcompiler == "uplatex" -%>
 \usepackage[deluxe,uplatex]{otf}
+<%- elsif @texcompiler == "xelatex" -%>
+%\usepackage[deluxe]{otf}
 <%- else -%>
 \usepackage[deluxe]{otf}
 <%- end -%>
 \usepackage{caption}
 \usepackage{suffix}
 \usepackage[T1]{fontenc}\usepackage{textcomp}%T1/TS1
-\usepackage{lmodern}
+%\usepackage{lmodern}
 <%- if ! ENV['STARTER_DRAFT'].to_s.empty? || @config['starter']['draft'] -%>
-\usepackage[dvipdfmx,draft]{graphicx}
+\usepackage[<%= dvipdfmx_ %>draft]{graphicx}
 <%- else -%>
-\usepackage[dvipdfmx]{graphicx}
+\usepackage[<%= dvipdfmx %>]{graphicx}
 <%- end -%>
-\usepackage[dvipdfmx,table]{xcolor}%requires colortbl, array
+\usepackage[<%= dvipdfmx_ %>table]{xcolor}%requires colortbl, array
 \usepackage{framed}
 \usepackage{wrapfig}
 \definecolor{shadecolor}{gray}{0.9}
@@ -64,7 +91,7 @@
 \usepackage{float}
 \usepackage{alltt}
 \usepackage{amsmath}
-\usepackage{pdfpages}
+\usepackage{pdfpages}     % provides '\includepdf' command
 
 %% if you use @<u>{} (underline), use jumoline.sty
 \IfFileExists{jumoline.sty}{
@@ -85,10 +112,14 @@
 \setlength{\footskip}{30pt}
 
 %% Bookmarkの文字化け対策（日本語向け）
-\usepackage[dvipdfmx,bookmarks=true,bookmarksnumbered=true,colorlinks=true,%
+\usepackage[<%= dvipdfmx_ %>bookmarks=true,bookmarksnumbered=true,colorlinks=true,%
      pdftitle={<%= escape_latex(@config.name_of("booktitle")) %>},%
      pdfauthor={<%= escape_latex(@config.names_of("aut").join(I18n.t("names_splitter"))) %>}]{hyperref}
-\usepackage[dvipdfmx]{pxjahyper}
+<%- if xelatex?() -%>
+%\usepackage[<%= dvipdfmx %>]{pxjahyper}
+<%- else -%>
+\usepackage[<%= dvipdfmx %>]{pxjahyper}
+<%- end -%>
 
 <%- if ["utbook", "tbook"].include?(@documentclass)  -%>
 \newcommand{\headfont}{\gtfamily\sffamily\bfseries}
@@ -326,9 +357,12 @@
   \end{center}
   \clearpage
 <%-     end -%>
+<%-     target = ENV['STARTER_TARGET']; target = nil if target.to_s.empty? -%>
+<%-     target ||= (@config['starter'] || {})['target'] -%>
+<%-     p = target == "ebook" ? '' : '%' -%>
 <%-     [@config["coverpdf_files"]].flatten.compact.each do |pdf_file| -%>
-  \includepdf[<%= @config["coverpdf_option"] %>]{./<%= @config["imagedir"] %>/<%= pdf_file %>}
-  \makeatletter\advance\c@page by -1\relax\makeatother
+  <%= p %>\includepdf[<%= @config["coverpdf_option"] %>]{./<%= @config["imagedir"] %>/<%= pdf_file %>}
+  <%= p %>\makeatletter\advance\c@page by -1\relax\makeatother
 <%-     end -%>
   \ifdefined\mytitlepage %%%%%%%%%%
     \mytitlepage   % defined in 'sty/mytitlepage.sty'

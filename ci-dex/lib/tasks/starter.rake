@@ -2,6 +2,41 @@
 
 
 ##
+## Docker用のタスク。
+##
+namespace :docker do
+
+  docker_image = ENV['DOCKER_IMAGE']
+  docker_image = "kauplan/review2.5" if docker_image.to_s.empty?
+  docker_opts  = "--rm -v $PWD:/work"
+  docker_opts += ENV.keys().grep(/^STARTER_/).map {|k| " -e #{k}" }.join()
+
+  desc "+ pull docker image for building PDF file"
+  task :setup do
+    sh "docker pull #{docker_image}"
+  end
+
+  docker_run = proc do |command|
+    cmd = "/bin/bash -c 'cd work; #{command}'"
+    sh "docker run #{docker_opts} #{docker_image} #{cmd}"
+  end
+
+  desc "+ run 'rake pdf' on docker"
+  task :pdf do docker_run.call('rake pdf') end
+
+  desc "+ run 'rake pdf:nombre' on docker"
+  task :'pdf:nombre' do docker_run.call('rake pdf:nombre') end
+
+  desc "+ run 'rake epub' on docker"
+  task :epub do docker_run.call('rake epub') end
+
+  desc "+ run 'rake web' on docker"
+  task :web do docker_run.call('rake web') end
+
+end
+
+
+##
 ## PDFにノンブルを入れるためのRakeタスク。
 ## ノンブルについては「ワンストップ！技術同人誌を書こう」第10章を参照のこと。
 ## https://booth.pm/ja/items/708196

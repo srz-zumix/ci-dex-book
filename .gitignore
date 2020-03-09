@@ -6,3 +6,4 @@ workspace/
 tmp/
 secret/
 *.lock
+*.bak
