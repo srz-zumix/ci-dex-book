@@ -16,6 +16,7 @@ jobs:
           repository: srz-zumix/ci-dex-review-contents
           token: ${{ secrets.GitHub_PAT }}
           path: ci-dex/contents
+      # 印刷版
       - uses: docker://kauplan/review2.5
         with:
           entrypoint: bash
