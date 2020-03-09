@@ -56,6 +56,9 @@ inherit: ["config-base.yml", "config-starter.yml", "config-starter-e.yml"]
 # カタログファイル名を指定する
 catalogfile: catalog-e.yml
 
+# Re:VIEW Stater のタスクは階層化された YAML を load してくれないので
+# トップレベルの config.yml に必要
+
 # reファイルを格納するディレクトリ。デフォルト値は null。
 # 値にたとえば「contents」を指定すると、reファイルはすべて「contents」
 # ディレクトリに置かなければならず、カレントディレクトリには一切置いては

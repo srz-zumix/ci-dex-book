@@ -4,6 +4,11 @@
 # 生成されます。
 # このファイルはUTF-8エンコーディングで記述してください。
 
+# Re:VIEW Stater のタスクは階層化された YAML を load してくれないので
+# トップレベルの config.yml に必要
+# for pdf:nombre
+bookname: ci-dex
+
 # この設定ファイルでサポートするRe:VIEWのバージョン番号。
 # major versionが違うときにはエラーを出す。
 review_version: 2.0
@@ -53,6 +58,9 @@ prt: 日光企画
 # a-ths, ths: 監督者
 # a-trc, trc: 筆記・タイプ作業者
 # a-trl, trl: 翻訳者
+
+# Re:VIEW Stater のタスクは階層化された YAML を load してくれないので
+# トップレベルの config.yml に必要
 
 # reファイルを格納するディレクトリ。デフォルト値は null。
 # 値にたとえば「contents」を指定すると、reファイルはすべて「contents」
