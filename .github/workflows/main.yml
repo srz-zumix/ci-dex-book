@@ -35,7 +35,7 @@ jobs:
       - name: copy artifacts
         run: |
           cp ci-dex/ci-dex.pdf ./artifacts/e-ci-dex.pdf
-          cp ci-dex/ci-dex.epub ./artifacts/e-ci-dex.epub
+          # cp ci-dex/ci-dex.epub ./artifacts/e-ci-dex.epub
       - name: Extract branch name
         id: extract_branch
         run: |
