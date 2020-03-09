@@ -19,7 +19,7 @@ jobs:
       - uses: docker://kauplan/review2.5
         with:
           entrypoint: bash
-          args: -c "cd ci-dex; rake preproc pdf"
+          args: -c "cd ci-dex; rake preproc pdf pdf:nombre"
       - name: copy artifacts
         run: |
           mkdir artifacts
