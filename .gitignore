@@ -1,6 +1,8 @@
 *.zip
 *.pdf
 ci-dex/ci-dex-pdf/
+ci-dex/ci-dex-epub/
 workspace/
 tmp/
 secret/
+*.lock

@@ -30,7 +30,8 @@ jobs:
           config: config-e.yml
         with:
           entrypoint: bash
-          args: -c "cd ci-dex; rake --trace preproc all"
+          args: -c "cd ci-dex; rake preproc pdf"
+          # args: -c "cd ci-dex; rake preproc all"
       - name: copy artifacts
         run: |
           cp ci-dex/ci-dex.pdf ./artifacts/e-ci-dex.pdf
