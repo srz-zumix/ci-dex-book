@@ -299,7 +299,7 @@ texdocumentclass: ["jsbook",
 ]
 #
 # LaTeX用のコマンドを指定する
-texcommand: uplatex
+# texcommand: uplatex
 #
 # LaTeXのコマンドに渡すオプションを指定する
 # texoptions: null
