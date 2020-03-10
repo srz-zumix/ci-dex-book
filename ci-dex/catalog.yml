@@ -5,20 +5,6 @@ CHAPS:
   - 無料で使える CI サービス紹介:
     - c001-free-ci.re
     - c010-appveyor.re
-    - c010-azure-pipelines.re
-    - c010-bitrise.re
-    - c010-buddy-works.re
-    - c010-circleci.re
-    - c010-cirrus-ci.re
-    - c010-codefresh.re
-    - c010-codeship.re
-    - c010-drone.re
-    - c010-github-actions.re
-    - c010-semaphore.re
-    - c010-shippable.re
-    - c010-travis-ci.re
-    # - c010-wercker.re
-    - c090-free-others.re
 
 APPENDIX:
   - c200-appendix.re
