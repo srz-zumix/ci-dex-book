@@ -19,14 +19,6 @@ CHAPS:
     - c010-travis-ci.re
     # - c010-wercker.re
     - c090-free-others.re
-  - 無料で使える CI サービス比較:
-    - c101-vs-env.re
-    - c102-vs-specs.re
-    - c103-vs-yaml.re
-    - c104-vs-comment-command.re
-    - c105-vs-share.re
-    - c106-vs-security.re
-    - c130-vs-badge.re
 
 APPENDIX:
   - c200-appendix.re
