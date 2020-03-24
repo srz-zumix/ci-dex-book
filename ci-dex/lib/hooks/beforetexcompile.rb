@@ -30,11 +30,6 @@ end
 def fix_reviewcolumn(content)
   return content.gsub(/^\\begin\{reviewcolumn\}$.*?^\\end\{reviewcolumn\}$/m) {|str|
     ##
-    ## コラムの目次を「〈タイトル〉」から「【コラム】〈タイトル〉」に変更する
-    ##
-    prefix = "【コラム】"
-    str = str.gsub(/^(\\addcontentsline\{toc\}\{\w+\}\{)/) { "#{$1}#{prefix}" }
-    ##
     ## これ↓だと脚注が消えてしまうので
     ##
     ##   \begin{reviewcolumn}
