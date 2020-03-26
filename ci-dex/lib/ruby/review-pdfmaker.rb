@@ -21,27 +21,9 @@ require_relative './review-maker'
 
 module ReVIEW
 
-  Book::Base.class_eval do
-    def each_input_file()
-      env_starter = ENV['STARTER_CHAPTER']
-      env_starter = nil unless env_starter.present?
-      found = false
-      self.parts.each do |part|
-      yield part, nil if part.name.present? && !env_starter
-      part.chapters.each do |chap|
-          next if env_starter && env_starter != chap.name
-          found = true
-          yield nil, chap
-      end
-      end
-      if env_starter && !found
-      raise "ERROR: chapter file '#{env_starter}.re' not found. ($STARTER_CHAPTER='#{env_starter}')"
-      end
-      nil
-    end
-  end
 
   remove_const :PDFMaker if defined?(PDFMaker)
+
 
   class PDFMaker < Maker
 
