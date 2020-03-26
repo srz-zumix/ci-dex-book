@@ -22,7 +22,7 @@ jobs:
         env:
           GIT_TOKEN: ${{ secrets.GitHub_PAT }}
         run: |
-          sed -i -e '"|git@github.com:srz-zumix/ci-dex-review-contents.git|https://srz-zumix:${GIT_TOKEN}@github.com/srz-zumix/ci-dex-review-contents.git|"' .gitmodules
+          sed -i -e "|git@github.com:srz-zumix/ci-dex-review-contents.git|https://srz-zumix:${GIT_TOKEN}@github.com/srz-zumix/ci-dex-review-contents.git|" .gitmodules
           git submodule init
           git submodule sync
           git submodule update
