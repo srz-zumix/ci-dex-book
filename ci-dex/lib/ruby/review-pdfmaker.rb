@@ -4,264 +4,46 @@
 ## ReVIEW::PDFMakerのソースコードがいろいろひどいので、書き直す。
 ## 具体的には、もとのコードではPDFMakerクラスの責務が大きすぎるので、分割する。
 ## ・CLIクラス … コマンドラインオプションの解析
-## ・AbstractMakerクラス … PDFに限定されない機能（設定ファイルの読み込み等）
+## ・Makerクラス … PDFに限定されない機能（設定ファイルの読み込み等）
 ## ・PDFMakerクラス … 原稿ファイルを読み込んでPDFファイルを生成する機能
-## ・LayoutTemplateContextクラス … layout.tex.erbのレンダリング
+## ・LATEXRendererクラス … layout.tex.erbのレンダリング
 ##
 
 require 'date'
 require 'pathname'
+require 'digest/md5'
 require 'rbconfig'
 require 'review/pdfmaker'
+
+require_relative './review-cli'
+require_relative './review-maker'
 
 
 module ReVIEW
 
-
   Book::Base.class_eval do
-
     def each_input_file()
       env_starter = ENV['STARTER_CHAPTER']
       env_starter = nil unless env_starter.present?
       found = false
       self.parts.each do |part|
-        yield part, nil if part.name.present? && !env_starter
-        part.chapters.each do |chap|
+      yield part, nil if part.name.present? && !env_starter
+      part.chapters.each do |chap|
           next if env_starter && env_starter != chap.name
           found = true
           yield nil, chap
-        end
+      end
       end
       if env_starter && !found
-        raise "ERROR: chapter file '#{env_starter}.re' not found. ($STARTER_CHAPTER='#{env_starter}')"
+      raise "ERROR: chapter file '#{env_starter}.re' not found. ($STARTER_CHAPTER='#{env_starter}')"
       end
       nil
     end
-
   end
 
   remove_const :PDFMaker if defined?(PDFMaker)
 
-
-  class CLI
-
-    def initialize(script_name)
-      @script_name = script_name
-    end
-
-    def parse_opts(args)
-      parser = OptionParser.new
-      parser.banner = "Usage: #{@script_name} <config.yaml>"
-      parser.version = ReVIEW::VERSION
-      cmdopts = {}
-      parser.on('-h', '--help', 'Prints this message and quit.') do
-        cmdopts['help'] = true
-      end
-      parser.on('--[no-]debug', 'Keep temporary files.') do |debug|
-        cmdopts['debug'] = debug
-      end
-      parser.on('--ignore-errors', 'Ignore review-compile errors.') do
-        cmdopts['ignore-errors'] = true
-      end
-      yield parser, cmdopts if block_given?
-      @_cmdopt_parser = parser
-      parser.parse!(args)
-      #
-      return cmdopts, args if cmdopts['help']
-      #
-      if args.length < 1
-        raise OptionParser::InvalidOption.new("Config filename required.")
-      elsif args.length > 1
-        raise OptionParser::InvalidOption.new("Too many arguments.")
-      end
-      config_filename = args[0]
-      File.exist?(config_filename)  or
-        raise OptionParser::InvalidOption.new("file '#{config_filename}' not found.")
-      #
-      return cmdopts, config_filename
-    end
-
-    def help_message
-      return @_cmdopt_parser.help
-    end
-
-  end
-
-
-  class AbstractMaker
-
-    attr_accessor :config, :basedir
-    attr_reader :maker_name
-
-    def initialize(config_filename, optional_values={})
-      @basedir     = File.dirname(config_filename)
-      @basehookdir = File.absolute_path(@basedir)
-      @logger      = ReVIEW.logger
-      @maker_name  = self.class.name.split('::')[-1].downcase()
-      @config      = load_config(config_filename, optional_values)
-      @config.maker = @maker_name
-      @config.check_version(ReVIEW::VERSION)   # may raise ReVIEW::ConfigError
-    end
-
-    def self.execute(*args)
-      script_name = self.const_get(:SCRIPT_NAME)
-      cli = CLI.new(script_name)
-      begin
-        cmdopts, config_filename = cli.parse_opts(args)
-      rescue OptionParser::InvalidOption => ex
-        $stderr.puts "Error: #{ex.message}"
-        $stderr.puts cli.help_message()
-        return 1
-      end
-      if cmdopts['help']
-        puts cli.help_message()
-        return 0
-      end
-      #
-      maker = nil
-      begin
-        maker = self.new(config_filename, cmdopts)
-        maker.generate()
-      rescue ApplicationError, ReVIEW::ConfigError => ex
-        raise if maker && maker.config['debug']
-        error(ex.message)
-      end
-    end
-
-    def generate()
-      raise NotImplementedError.new("#{self.class.name}#generate(): not implemented yet.")
-    end
-
-    protected
-
-    def load_config(config_filename, additionals={})
-      begin
-        config_data = ReVIEW::YAMLLoader.new.load_file(config_filename)
-      rescue => ex
-        error "yaml error #{ex.message}"
-      end
-      #
-      config = ReVIEW::Configure.values
-      config.deep_merge!(config_data)
-      # YAML configs will be overridden by command line options.
-      config.deep_merge!(additionals)
-      I18n.setup(config['language'])
-      #
-      if ENV['STARTER_CHAPTER'].present?
-        modify_config(config)
-      end
-      #
-      return config
-    end
-
-    def modify_config(config)
-      config.deep_merge!({
-        'toc'        => false,
-        'cover'      => false,
-        'coverimage' => nil,
-        'titlepage'  => false,
-        'titlefile'  => nil,
-        'colophon'   => nil,
-        'pdfmaker' => {
-          'colophon'   => nil,
-          'titlepage'  => nil,
-          'coverimage' => nil,
-        },
-      })
-    end
-
-    def load_book()
-      book = ReVIEW::Book.load(@basedir)  # also loads 'review-ext.rb'
-      book.config = @config
-      return book
-    end
-
-    def system_or_raise(*args)
-      Kernel.system(*args) or raise("failed to run command: #{args.join(' ')}")
-    end
-
-    def self.error(msg)
-      $stderr.puts "ERROR: #{File.basename($PROGRAM_NAME, '.*')}: #{msg}"
-      exit 1
-    end
-
-    def error(msg)
-      self.class.error(msg)
-    end
-
-    def self.warn(msg)
-      $stderr.puts "Waring: #{File.basename($PROGRAM_NAME, '.*')}: #{msg}"
-    end
-
-    def warn(msg)
-      self.class.warn(msg)
-    end
-
-    def empty_dir(path)
-      if File.directory?(path)
-        Pathname.new(path).children.each {|x| x.rmtree() }
-      end
-      path
-    end
-
-    def run_cmd(cmd)
-      puts ""
-      puts "[#{@maker_name}]$ #{cmd}"
-      return Kernel.system(cmd)
-    end
-
-    def run_cmd!(cmd)
-      run_cmd(cmd)  or raise("failed to run command: #{cmd}")
-    end
-
-    def find_layout_template(filepath)
-      basename = File.basename(filepath)
-      layout_file = File.join(@basedir, 'layouts', basename)
-      return layout_file if File.exist?(layout_file)
-      return File.expand_path(filepath, ReVIEW::Template::TEMPLATE_DIR)
-    end
-
-    def render_template(template_filepath, context)
-      erb = ReVIEW::Template.load(template_filepath, '-')
-      context.instance_eval do
-        return erb.result(binding)
-      end
-    end
-
-    def call_hook(hookname)
-      d = @config[@maker_name]
-      return unless d.is_a?(Hash)
-      return unless d[hookname]
-      if ENV['REVIEW_SAFE_MODE'].to_i & 1 > 0
-        warn 'hook configuration is prohibited in safe mode. ignored.'
-        return
-      end
-      ## hookname が文字列の配列なら、それらを全部実行する
-      basehookdir = @basehookdir
-      [d[hookname]].flatten.each do |hook|
-        script = File.absolute_path(hook, basehookdir)
-        ## 拡張子が .rb なら、rubyコマンドで実行する（ファイルに実行属性がなくてもよい）
-        if script.end_with?('.rb')
-          ruby = ruby_fullpath()
-          ruby = "ruby" unless File.exist?(ruby)
-          run_cmd!("#{ruby} #{script} #{Dir.pwd} #{basehookdir}")
-        else
-          run_cmd!("#{script} #{Dir.pwd} #{basehookdir}")
-        end
-      end
-    end
-
-    def ruby_fullpath
-      c = RbConfig::CONFIG
-      return File.join(c['bindir'], c['ruby_install_name']) + c['EXEEXT'].to_s
-    end
-
-  end
-
-
-  class PDFMaker < AbstractMaker
-    include FileUtils
-    #include ReVIEW::LaTeXUtils
+  class PDFMaker < Maker
 
     SCRIPT_NAME = "review-pdfmaker"
 
@@ -329,12 +111,13 @@ module ReVIEW
     end
 
     def output_chaps(converter, filename)
+      contdir = @config['contentdir']
       infile  = "#{filename}.re"
+      infile  = File.join(contdir, infile) if contdir.present?
       outfile = "#{filename}.tex"
       $stderr.puts "compiling #{outfile}"
       begin
-        #converter.convert(infile, File.join(@build_dir, outfile))
-        converter.convert(File.join('contents', infile), File.join(@build_dir, outfile))
+        converter.convert(infile, File.join(@build_dir, outfile))
         nil
       ## 文法エラーだけキャッチし、それ以外のエラーはキャッチしないよう変更
       ## （LATEXBuilderで起こったエラーのスタックトレースを表示する）
@@ -357,8 +140,8 @@ module ReVIEW
     def build_pdf(book)
       base = "book"
       #
-      s = render_layout_template(book)
-      File.open(File.join(@build_dir, "#{base}.tex"), 'wb') {|f| f.write(s) }
+      texfile = File.join(@build_dir, "#{base}.tex")
+      new_renderer(book).generate_file(texfile)
       #
       Dir.chdir(@build_dir) do
         if ENV['REVIEW_SAFE_MODE'].to_i & 4 > 0
@@ -415,6 +198,13 @@ module ReVIEW
     ## コンパイルメッセージを減らすために、uplatexコマンドをバッチモードで起動する。
     ## エラーがあったら、バッチモードにせずに再コンパイルしてエラーメッセージを出す。
     def run_latex!(latex, file)
+      ## *.auxファイルと*.tocファイルのハッシュ値を計算する。
+      ## （「//list[?]」が生成するラベルはランダムなのでそれを削除してハッシュ値を計算する。）
+      delete_rexp = /^\\newlabel\{_\d+\}/
+      auxfile = file.sub(/\.tex\z/, '.aux')
+      tocfile = file.sub(/\.tex\z/, '.toc')
+      auxhash_old = _filehash(auxfile, delete_rexp)
+      tochash_old = _filehash(tocfile)
       ## invoke latex command with batchmode option in order to suppress
       ## compilation message (in other words, to be quiet mode).
       ok = run_cmd("#{latex} -interaction=batchmode #{file}")
@@ -427,18 +217,34 @@ module ReVIEW
         $stderr.puts "*"
         run_cmd!("#{latex} #{file}")
       end
+      ## *.tocファイルのハッシュ値を計算し、コンパイル前と変わっていたらtrueを返す。
+      ## （つまりもう一度コンパイルが必要ならtrueを返す。）
+      auxhash_new = _filehash(auxfile, delete_rexp)
+      tochash_new = _filehash(tocfile)
+      return auxhash_old.nil? || tochash_old.nil? \
+          || auxhash_old != auxhash_new || tochash_old != tochash_new
       ## LaTeXのログファイルに「ラベルが変更された」と出ていたらtrueを返す。
       ## （つまりもう一度コンパイルが必要ならtrueを返す。）
-      logfile = file.sub(/\.tex\z/, '.log')
-      begin
-        lines = File.open(logfile, 'r') {|f|
-          f.grep(/^LaTeX Warning: Label\(s\) may have changed./)
-        }
-        return !lines.empty?
-      rescue IOError
-        return true
-      end
+      ## → この方法は、ページ番号が変わったことは検出できても、
+      ##    章や節のタイトルが変わったことを検出できない。
+      #logfile = file.sub(/\.tex\z/, '.log')
+      #begin
+      #  lines = File.open(logfile, 'r') {|f|
+      #    f.grep(/^LaTeX Warning: Label\(s\) may have changed./)
+      #  }
+      #  return !lines.empty?
+      #rescue IOError
+      #  return true
+      #end
     end
+
+    def _filehash(filepath, delete_rexp=nil)
+      return nil unless File.exist?(filepath)
+      binary = File.open(filepath, 'rb') {|f| f.read() }
+      binary = binary.gsub(delete_rexp, '') if delete_rexp
+      return Digest::MD5.hexdigest(binary)
+    end
+    private :_filehash
 
     ## 開発用。LaTeXコンパイル回数を環境変数で指定する。
     if ENV['STARTER_COMPILETIMES']
@@ -476,19 +282,21 @@ module ReVIEW
       return unless File.exist?(from)
       FileUtils.mkdir_p(to)
       ReVIEW::MakerHelper.copy_images_to_dir(from, to)
-      Dir.chdir(to) do
-        images = Dir.glob('**/*.{jpg,jpeg,png,pdf,ai,eps,tif,tiff}')
-        images = images.find_all {|f| File.file?(f) }
-        break if images.empty?
-        d = @config[@maker_name]
-        if d['bbox']
-          system('extractbb', '-B', d['bbox'], *images)
-          system_or_raise('ebb', '-B', d['bbox'], *images) unless system('extractbb', '-B', d['bbox'], '-m', *images)
-        else
-          system('extractbb', *images)
-          system_or_raise('ebb', *images) unless system('extractbb', '-m', *images)
-        end
-      end
+      ## extractbb コマンドは、最近のLaTeX処理系では必要ないだけでなく、
+      ## XeTeX において図がずれる原因になるので、使わない。
+      #|Dir.chdir(to) do
+      #|  images = Dir.glob('**/*.{jpg,jpeg,png,pdf,ai,eps,tif,tiff}')
+      #|  images = images.find_all {|f| File.file?(f) }
+      #|  break if images.empty?
+      #|  d = @config[@maker_name]
+      #|  if d['bbox']
+      #|    system('extractbb', '-B', d['bbox'], *images)
+      #|    system_or_raise('ebb', '-B', d['bbox'], *images) unless system('extractbb', '-B', d['bbox'], '-m', *images)
+      #|  else
+      #|    system('extractbb', *images)
+      #|    system_or_raise('ebb', *images) unless system('extractbb', '-m', *images)
+      #|  end
+      #|end
     end
 
     def copy_sty(dirname, copybase, extname = 'sty')
@@ -506,20 +314,22 @@ module ReVIEW
       end
     end
 
-    def render_layout_template(book)
-      context = LayoutTemplateContext.new(book, @config).setup()
-      filepath = find_layout_template('./latex/layout.tex.erb')
-      return render_template(filepath, context)
+    def new_renderer(book)
+      return LATEXRenderer.new(@config, book, @basedir, @starter_config)
     end
 
 
-    ## layout.tex.erb のレンダリングに必要なコンテキストデータ
-    class LayoutTemplateContext
+    ## layout.tex.erb をレンダリングする
+    class LATEXRenderer < BaseRenderer
       include ReVIEW::LaTeXUtils
 
-      def initialize(book, config)
-        @book = book
-        @config = config
+      def layout_template_name
+        return './latex/layout.tex.erb'
+      end
+
+      def initialize(*args)
+        super
+        setup()
       end
 
       def setup()
@@ -572,10 +382,6 @@ module ReVIEW
       end
 
       private
-
-      def i18n(key, *args)
-        ReVIEW::I18n.t(key, *args)
-      end
 
       def chapter_key(chap)
         return 'PREDEF'   if chap.on_predef?

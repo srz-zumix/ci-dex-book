@@ -3,6 +3,10 @@
 prev_page = @prev ? "#{@prev.id}.#{@book.config['htmlext']}" : nil
 next_page = @next ? "#{@next.id}.#{@book.config['htmlext']}" : nil
 
+rebuild_js = ENV['STARTER_REBUILD_JS']
+
+body_ext = @body_ext || (@error ? ' class="has-compile-error"' : nil)
+
 %>
 <!doctype html>
 <html lang="<%=h @language %>">
@@ -21,10 +25,15 @@ next_page = @next ? "#{@next.id}.#{@book.config['htmlext']}" : nil
 <% end %>
     <meta name="generator" content="Re:VIEW Starter">
   </head>
-  <body<%= @body_ext %>>
+  <body<%= body_ext %>>
     <div class="page-outer">
-<% if @chapter %>
+<% if @chapter || @error %>
       <nav class="side-content">
+        <% if rebuild_js %>
+        <div class="rebuild">
+          <a href="javascript:void(0)" onclick="rebuildAndReloadForcedly()">Rebuild and Reload</a>
+        </div>
+        <% end %>
         <a class="nav-title" href="index.html"><%=h @book.config.name_of("booktitle") %></a>
 <%= @toc %>
       </nav>
@@ -35,6 +44,22 @@ next_page = @next ? "#{@next.id}.#{@book.config['htmlext']}" : nil
         <main class="page-main">
 <% if @chapter %>
 <%= @body %>
+
+<% elsif @error %>
+          <h2>Error</h2>
+          <div class="compile-error-message">
+            <dl>
+              <dt>File:</dt>
+              <dd><%= @textfile ? h(@textfile) : '&nbsp;' %></dd>
+              <dt>Error:</dt>
+              <dd><%=h @error.message %>
+                <i>(<%=h @error.class.name %>)</i>
+              </dd>
+            </dl>
+          </div>
+          <p>Traceback:</p>
+          <pre class="compile-error-backtrace"><% @error.backtrace.each do |x| %><%=h x %><%= "\n" %><% end %></pre>
+
 <% else %>
           <h1><%=h @book.config.name_of("booktitle") %></h1>
 <%= @toc %>
@@ -58,5 +83,24 @@ next_page = @next ? "#{@next.id}.#{@book.config['htmlext']}" : nil
 <% @javascripts.each do |script| %>
     <script src="<%=h script %>"></script>
 <% end if @javascripts.present? %>
+<% ##### %>
+<% if rebuild_js %>
+    <script>
+function rebuildAndReloadForcedly() {
+  fetch('<%= rebuild_js %>').then((resp)=>{
+    resp.text().then((text)=>{ eval(text); });
+  });
+}
+    </script>
+<%   #textfile = @textfile || @chapter.name  #=> NoMethodError (why?) %>
+<%   textfile = @textfile || @chapter.instance_eval { @name } %>
+<%   if textfile && !textfile.empty? %>
+    <script src="<%=h rebuild_js %>?file=<%= textfile %>"></script>
+<%   else %>
+    <!--script src="<%=h rebuild_js %>?file=<%= textfile %>"></script-->
+<%   end %>
+<% end %>
+<% ##### %>
   </body>
 </html>
+<!-- layout.html5.erb -->
