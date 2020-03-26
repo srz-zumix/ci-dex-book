@@ -76,7 +76,11 @@ end
 desc 'generate stagic HTML file for web'
 task :web => :prepare do
   FileUtils.rm_rf [WEBROOT]
-  sh "review-webmaker #{config_file()}"
+  #sh "review-webmaker #{config_file()}"
+  require 'review'
+  #require 'review/pdfmaker'
+  require './lib/ruby/review-webmaker'
+  ReVIEW::WEBMaker.execute(config_file())
 end
 
 

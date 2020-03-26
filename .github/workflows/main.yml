@@ -10,12 +10,22 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        uses: actions/checkout@v2
         with:
-          repository: srz-zumix/ci-dex-review-contents
           token: ${{ secrets.GitHub_PAT }}
-          path: ci-dex/contents
+      # - name: Checkout submodules
+      #   uses: actions/checkout@v2
+      #   with:
+      #     repository: srz-zumix/ci-dex-review-contents
+      #     token: ${{ secrets.GitHub_PAT }}
+      #     path: ci-dex/contents
+      - name: Checkout submodules
+        env:
+          GIT_TOKEN: ${{ secrets.GitHub_PAT }}
+        run: |
+          sed -i "s|git@github.com:srz-zumix/ci-dex-review-contents.git|https://srz-zumix:${GIT_TOKEN}@github.com/srz-zumix/ci-dex-review-contents.git|g" .gitmodules
+          git submodule init
+          git submodule sync
+          git submodule update
       # 印刷版
       - uses: docker://kauplan/review2.5
         with:
@@ -57,13 +67,13 @@ jobs:
       - name: Notify slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: pullreminders/slack-action@master
+        uses: pullreminders/slack-action@v1.0.7
         with:
           args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"Upload new pdf!!\"}'
       - name: Notify slack (fail)
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: pullreminders/slack-action@master
+        uses: pullreminders/slack-action@v1.0.7
         with:
           args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/ci-dex-book/actions\"}'

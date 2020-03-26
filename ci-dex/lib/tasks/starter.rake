@@ -1,6 +1,51 @@
 # -*- coding: utf-8 -*-
 
 
+WEBSERVER_PORT = 9000
+
+
+##
+## Docker用のタスク。
+##
+namespace :docker do
+
+  docker_image = ENV['DOCKER_IMAGE']
+  docker_image = "kauplan/review2.5" if docker_image.to_s.empty?
+  docker_opts  = "--rm -v $PWD:/work"
+  docker_opts += ENV.keys().grep(/^STARTER_/).map {|k| " -e #{k}" }.join()
+
+  desc "+ pull docker image for building PDF file"
+  task :setup do
+    sh "docker pull #{docker_image}"
+  end
+
+  docker_run = proc do |command, opt=nil|
+    cmd = "/bin/bash -c 'cd work; #{command}'"
+    sh "docker run #{docker_opts} #{opt} #{docker_image} #{cmd}"
+  end
+
+  desc "+ run 'rake pdf' on docker"
+  task :pdf do docker_run.call('rake pdf') end
+
+  desc "+ run 'rake pdf:nombre' on docker"
+  task :'pdf:nombre' do docker_run.call('rake pdf:nombre') end
+
+  desc "+ run 'rake epub' on docker"
+  task :epub do docker_run.call('rake epub') end
+
+  desc "+ run 'rake web' on docker"
+  task :web do docker_run.call('rake web') end
+
+  desc "+ run 'rake web:server' on docker"
+  task :'web:server' do
+    port = WEBSERVER_PORT
+    opt  = "-it -p #{port}:#{port+1} -e WEBSERVER_PORT=#{port+1}"
+    docker_run.call('rake web:server', opt)
+  end
+
+end
+
+
 ##
 ## PDFにノンブルを入れるためのRakeタスク。
 ## ノンブルについては「ワンストップ！技術同人誌を書こう」第10章を参照のこと。
@@ -75,6 +120,117 @@ namespace :pdf do
     pdf = CombinePDF.load(infile)
     pdf.add_nombre()
     pdf.save(outfile)
+  end
+
+end
+
+
+##
+## プレビュー用のサーバを起動する
+##
+namespace :web do
+
+  invoke_web_task = proc do
+    #sh "rake web"
+    Process.fork { Rake::Task['web'].invoke() }
+    Process.wait()
+  end
+
+  helper_message_when_start_server = <<END
+*
+* Please open http://localhost:#{WEBSERVER_PORT}/ in browser.
+*
+END
+
+  helper_message_when_address_already_in_use = <<END
+**
+** ERROR: Failed to start web server.
+**
+** Other webserver process seems running. Kill it and restart webserver.
+**
+** How to:
+**   $ ps | head -1; ps | grep web[:]server
+**     PID TTY           TIME CMD
+**   12345 ttys002    0.00.35 /usr/bin/ruby /usr/bin/rake web:server
+**   $ kill -KILL 12345
+**   $ rake web:server
+**
+END
+
+  favicon_base64 = <<END
+AAABAAEAEBACAAEAAQCwAAAAFgAAACgAAAAQAAAAIAAAAAEAAQAAAAAAgAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAA////AAAAAAAAAAAAAAAAAAAAAAAAAAAA
+AAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAAD/
+/wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//AAD//wAA//8AAP//
+AAD//wAA//8AAP//AAD//wAA
+END
+
+  desc "+ start web server for preview"
+  task :server do
+    rebuild_js = (ENV['STARTER_REBUILD_JS'] ||= '/rebuild.js')
+    invoke_web_task.call()
+    #
+    require 'yaml'
+    config = File.open('config.yml') {|f| YAML.load(f) }
+    contdir = config['contentdir']
+    #
+    require 'webrick'
+    root = 'webroot/'
+    host = '0.0.0.0'   # don't use '127.0.0.1' to work on Docker
+    port = ENV['WEBSERVER_PORT'] ? ENV['WEBSERVER_PORT'].to_i : WEBSERVER_PORT
+    onstart = proc { puts helper_message_when_start_server }
+    srvconf = {DocumentRoot: root, BindAddress: host, Port: port, StartCallback: onstart}
+    begin
+      srv = WEBrick::HTTPServer.new(srvconf)
+    rescue Errno::EADDRINUSE => ex
+      at_exit { $stderr.puts helper_message_when_address_already_in_use }
+      raise
+    end
+    #
+    srv.mount_proc('/favicon.ico') do |req, res|
+      res.content_type     = "image/x-icon"
+      res['Cache-Control'] = "public, max-age=#{60*60*24}"
+      res.body = favicon_base64.unpack("m")[0]
+    end
+    #
+    flag_quit = false
+    interval  = 0.8  # seconds
+    srv.mount_proc(rebuild_js) do |req, res|
+      file = nil
+      if req.query_string =~ /\Afile=([^&]*)/
+        file = $1.strip
+        file = nil if file.empty?
+      end
+      #
+      errmsg = nil
+      if file.nil?
+        # pass
+      elsif file !~ /\A[-\w]+\.re\z/
+        errmsg = "invalid file"
+      else
+        file = File.join(contdir, file) if contdir
+        errmsg = "file not found." if ! File.exist?(file)
+      end
+      #
+      if errmsg
+        body = "alert('ERROR: #{errmsg}');"
+      else
+        body = "window.location.reload();"
+        ## sleep until '*.re' file modified
+        if file
+          mtime = File.mtime(file)
+          sleep interval while !flag_quit && mtime == File.mtime(file)
+        end
+        ## generate html file from '*.re'
+        invoke_web_task.call() unless flag_quit
+      end
+      res.content_type = "application/javascript"
+      msg = "Server seems down. Press OK to reload."
+      res.body = !flag_quit ? body : "alert('#{msg}');window.location.reload();"
+    end
+    #
+    trap(:INT) { flag_quit = true; srv.shutdown() }
+    srv.start()
   end
 
 end

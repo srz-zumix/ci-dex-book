@@ -13,6 +13,13 @@ starter:
   ## 図やスクリーンショットが多くてコンパイルに時間がかかるときに便利。
   draft: false
 
+  ## 本文のフォント（注：実験的）
+  ## （Notoフォントが前提なので、Docker環境が必要。MacTeXでは使わないこと）
+  fontfamily_ja: mincho    # (日本語) mincho: 明朝体, gothic: ゴシック体
+  fontfamily_en: roman     # (英数字) roman: ローマン体, sansserif: サンセリフ体
+  fontweight_ja: normal    # (日本語) normal: 通常, light: 細字
+  fontweight_en: normal    # (英数字) normal: 通常, light: 細字
+
   ## 章 (Chapter) タイトルの装飾
   ## （none: なし、underline: 下線、boldlines: 上下に太線）
   chapter_decoration: boldlines
@@ -32,7 +39,8 @@ starter:
   section_notopmargin: true
 
   ## 節 (Section) タイトルの装飾
-  ## （none: なし、underline: 下線、grayback: 灰色の背景色）
+  ## （none: なし、underline: 下線、grayback: 灰色の背景色、leftline: 左に縦線, numbox: 節番号を黒背景に）
+  ## （節タイトルが長くて二行になる場合は「leftline」または「numbox」がお勧め）
   section_decoration: underline
   # section_decoration: grayback
 
@@ -107,3 +115,9 @@ starter:
   ##   節タイトルの直前で改ページすることをLaTeXは選ぶ。
   ##   このせいで、十分な空きがあるのに節タイトル前で改ページされることがある。）
   page_clubline: true      # trueなら改ページを避ける
+
+  ## リンクのURLを脚注に埋め込む（PDFでのみ）。
+  linkurl_footnote: true   # trueならリンクのURLを脚注に埋め込む（お勧め）
+
+  ## @<secref>{}において、親の節のタイトルを含めるか？
+  secref_parenttitle: true # trueなら親の節のタイトルを含める
