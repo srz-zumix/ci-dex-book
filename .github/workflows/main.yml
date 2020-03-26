@@ -10,12 +10,15 @@ jobs:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@v2
-      - name: Checkout submodules
-        uses: actions/checkout@v2
         with:
-          repository: srz-zumix/ci-dex-review-contents
           token: ${{ secrets.GitHub_PAT }}
-          path: ci-dex/contents
+          submodule: true
+      # - name: Checkout submodules
+      #   uses: actions/checkout@v2
+      #   with:
+      #     repository: srz-zumix/ci-dex-review-contents
+      #     token: ${{ secrets.GitHub_PAT }}
+      #     path: ci-dex/contents
       # 印刷版
       - uses: docker://kauplan/review2.5
         with:
