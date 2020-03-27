@@ -21,7 +21,9 @@ require_relative './review-maker'
 
 module ReVIEW
 
+
   remove_const :PDFMaker if defined?(PDFMaker)
+
 
   class PDFMaker < Maker
 
