@@ -16,8 +16,10 @@ require_relative './review-maker'
 
 module ReVIEW
 
-  remove_const :WEBMaker
-
+  begin
+    remove_const :WEBMaker
+  rescue
+  end
 
   class WEBMaker < Maker
 
