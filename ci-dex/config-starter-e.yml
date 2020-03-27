@@ -107,3 +107,9 @@ starter:
   ##   節タイトルの直前で改ページすることをLaTeXは選ぶ。
   ##   このせいで、十分な空きがあるのに節タイトル前で改ページされることがある。）
   # page_clubline: true      # trueなら改ページを避ける
+
+  ## リンクのURLを脚注に埋め込む（PDFでのみ）。
+  linkurl_footnote: false   # trueならリンクのURLを脚注に埋め込む（お勧め）
+
+  ## @<secref>{}において、親の節のタイトルを含めるか？
+  # secref_parenttitle: true # trueなら親の節のタイトルを含める
