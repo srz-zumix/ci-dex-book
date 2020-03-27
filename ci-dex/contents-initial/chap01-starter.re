@@ -134,9 +134,9 @@ Starterでは、文字の大きさを変更するインラインコマンドを�
 @<code>$@<nop>{@}<xxlarge>{...}$	@<xxlarge>{あいうabc123}
 //}
 
-また文字を太字ゴシック体にする「@<code>{@}@<code>$<strong>{}$」の、文字を大きくする派生コマンドも用意しました（@<table>{0g6fo}）。
+また文字を太字ゴシック体にする「@<code>$@<nop>{@}<strong>{}$」の、文字を大きくする派生コマンドも用意しました（@<table>{0g6fo}）。
 
-//table[0g6fo][文字を大きくする機能をもった「@<code>{@}@<code>$<strong>{}$」]{
+//table[0g6fo][文字を大きくする機能をもった「@<code>$@<nop>{@}<strong>{}$」]{
 インラインコマンド	表示例
 ----------------------------------------
 @<code>$@<nop>{@}<strong>{...}$	@<strong>{あいうabc123}
@@ -559,6 +559,36 @@ Hello
 詳しくは@<secref>{chap02-faq|subsec-faq-memo}を参照のこと。
 
 
+=== ノートの参照
+
+Starterでは、ノートにラベルをつけて他の箇所から参照できます。
+
+//emlist[サンプル]{
+@<letitgo>$//$note@<b>|[note-123]|[推しマンガ『鍵つきテラリウム』の紹介]{
+『少女終末旅行』や『メイドインアビス』や『風の谷のナウシカ』（原作版）が好きな人は、お願いだから『鍵つきテラリウム』を読んで！
+@<letitgo>$//$}
+
+『鍵つきテラリウム』については@<b>|@<letitgo>$@$<noteref>{chap01-starter|note-123}|を参照してください。
+//}
+
+//sampleoutputbegin[表示結果]
+
+//note[note-123][推しマンガ『鍵つきテラリウム』の紹介]{
+『少女終末旅行』や『メイドインアビス』や『風の谷のナウシカ』（原作版）が好きな人は、お願いだから『鍵つきテラリウム』を読んで！
+//}
+
+『鍵つきテラリウム』については@<noteref>{chap01-starter|note-123}を参照してください。
+
+//sampleoutputend
+
+
+
+ここで「@<code>{chap01-starter}」は章IDであり、たとえばファイル名が「@<em>{chap01-starter.re}」なら拡張子を除いた「@<em>{chap01-starter}」が章IDです。
+また同じ章のノートを参照するなら章IDを省略して「@<code>$@<nop>{@}<noteref>{note-123}$」のように書けます。
+
+なお「@<code>$//note[タイトル]$」は「@<code>$//note[][タイトル]$」と同じだとみなされます。
+
+
 === プログラムコード用のコマンドを統一
 
 Re:VIEWでは、プログラムコードを書くためのブロックコマンドが複数あります。
@@ -689,6 +719,11 @@ function fib(n) {
  : @<code>$fontsize={small|x-small|xx-small|large|x-large|xx-large}$
 	文字の大きさを小さく（または大きく）します。
 	どうしてもプログラムコードを折返ししたくないときに使うといいでしょう。
+ : @<code>$indentwidth=@<i>{integer}$
+	インデント幅を指定します。
+	たとえば「@<code>$indentwidth=4$」が指定されると、4文字幅のインデントを表すパイプ記号「@<code>$|$」がつきます。
+	Pythonのようにブロックの構造をインデント幅で表す（ブロックの終わりを表す記号がない）ようなプログラミング言語の場合に使うといいでしょう。
+	インデント幅を調整する機能ではないので注意してください。
  : @<code>$lang=@<i>{name}$
 	プログラミング言語名を表します。
 	デフォルトはなし。
@@ -822,7 +857,7 @@ foo/bar/baz/testprog.rb:11:in `func1': undefined local variable or method `aaabb
    詳しくは@<secref>{chap02-faq|ikumq}を参照してください。
  * 折り返し機能によって何らかの問題が発生したら、「@<code>{//list}」や「@<code>{//terminal}」の第3引数に「@<code>{fold=off}」を指定して折り返し機能をオフにしてください。
    これは原因の切り分けに役立つでしょう。
- * 折り返し箇所で太字（@<code>$@<nop>{@}<b>{...}$）や取り消し線（@<code>$@<nop>{@}<del>{...}$）を使っていても、折り返しはされるし折り返し記号もつきます（@<list>{u4yj2}）。
+ * 折り返し箇所で太字（@<code>$@<nop>{@}<b>{...}$）や取り消し線（@<code>$@<nop>{@}<del>{...}$）を使っていても@<fn>{kt429}、折り返しはされるし折り返し記号もつきます（@<list>{u4yj2}）。
    実は@<LaTeX>{}でこれを実現するのは簡単ではないのですが@<fn>{mpo3t}、頑張って実現しました。
 
 //list[u4yj2][折り返し箇所が太字や取り消し線でも折り返しされる]{
@@ -832,6 +867,8 @@ foo/bar/baz/testprog.rb:11:in `func1': undefined local variable or method `aaabb
 
 //footnote[wilge][英数字なら折り返し改行される位置にハイフンが入ります。このハイフンを強引に置き換えることで、折り返し記号を挿入しています。しかしpLaTeXでは日本語だとハイフンが入らないため、折り返し記号も挿入されません。これの解決は難しそうなので、別の方法を模索中。]
 //footnote[mpo3t][通常は、取り消し線「@<code>$\sout{...}$」の中では折返しを実現する「@<code>$\seqsplit{...}$」が効かなくなります。Starterでは「@<code>$\sout{...}$」が使う内部コマンドを上書きして強引に実現しています。]
+//footnote[kt429][XeLaTeXでは取り消し線がうまく動きません。現在調査中。]
+
 
 //note[折り返し記号のかわりに行末記号]{
 
@@ -902,6 +939,28 @@ function fib(n) {
 //sampleoutputbegin[表示結果]
 
 //list[][][lineno=98]{
+function fib(n) {
+  return n <= 1 ? n : fib(n-1) + fib(n-2);
+}
+//}
+
+//sampleoutputend
+
+
+
+行番号をつけるのにいちいち「@<code>{[lineno=1]}」と書くのが面倒な人のために、「@<code>{//list[][][lineno=1]}」を「@<code>{//list[][][1]}」と書けるようになりました。
+
+//emlist[サンプル]{
+@<letitgo>$//$list[][][@<b>|1|]{
+function fib(n) {
+  return n <= 1 ? n : fib(n-1) + fib(n-2);
+}
+@<letitgo>$//$}
+//}
+
+//sampleoutputbegin[表示結果]
+
+//list[][][1]{
 function fib(n) {
   return n <= 1 ? n : fib(n-1) + fib(n-2);
 }
@@ -1274,9 +1333,9 @@ Re:VIEWのデフォルトでは、図を入れるときに現在位置に入り�
 これを指定することで、空いたスペースに後続のテキストを流し込むかどうかを、画像ごとに制御できます。
 //footnote[u5dnl][実装方法は@<em>{lib/hooks/monkeypatch.rb}を見てください。]
 
- * 「@<code>$//image[][][$@<strong>$pos=H$@<code>$]$」なら後続のテキストを流し込まない@<br>{}
+ * 「@<code>$//image[][][@<strong>{pos=H}]$」なら後続のテキストを流し込まない@<br>{}
    （つまり画像を現在位置に強制的に配置する）
- * 「@<code>$//image[][][$@<strong>$pos=h$@<code>$]$」なら後続のテキストを流し込む@<br>{}
+ * 「@<code>$//image[][][@<strong>{pos=h}]$」なら後続のテキストを流し込む@<br>{}
    （つまり画像が現在位置に入りきらなければ次のページの先頭に配置する）
 
 画像の倍率も指定する場合は、「@<code>$//image[][][scale=0.5,pos=H]$」のように指定してください。
@@ -1389,7 +1448,7 @@ Re:VIEWでは、「@<code>$//list{ ... //}$」や「@<code>$//emlist{ ... //}$�
 なお「@<code>$@<nop>{@}<nop>{}$」はもともと「@<code>$@<nop>{@}<letitgo>{}$」という名前でしたが、長すぎるという意見があったので「@<code>$@<nop>{@}<nop>{}$」になりました。後方互換性のため、「@<code>$@<nop>{@}<letitgo>{}$」も使えます。
 
 
-=== 章や項を参照する「@<code>$@$@<code>$<secref>{}$」
+=== 章や項を参照する「@<code>$@<nop>{@}<secref>{}$」
 
 Re:VIEWでは、「@<code>$@<nop>{@}<hd>{}$」を使って節(Section)や項(Subsection)を参照できます。
 しかしこの機能には問題点があります。
@@ -1518,12 +1577,17 @@ Re:VIEWでは、「@<code>$@<nop>{@}<hd>{}$」を使って節(Section)や項(Sub
    ただし、章(Chapter)は参照できないので、その場合は「@<code>$@<nop>{@}<chapref>{}$」を使ってください。
  * 項にも番号をつけるよう設定している場合は、「@<code>$@<nop>{@}<secref>{}$」の表示結果は「@<code>$@<nop>{@}<hd>{}$」にページ番号をつけたものと同じです。
  * 他の章(Chapter)の節や項を参照する場合は、たとえば@<br>{}
-  「@<code>$@<nop>{@}<secref>{chap-pattern|sec-visitor}$」や@<br>{}
-  「@<code>$@<nop>{@}<secref>{chap-pattern|subsec-impl}$」のように書いてください。わざわざ@<br>{}
-  「@<code>$@<nop>{@}<secref>{chap-pattern|sec-visitor|subsec-impl}$」のように書く必要はありません。
+  「@<code>$@<nop>{@}<secref>{@<i>{chapter-id}|sec-visitor}$」や@<br>{}
+  「@<code>$@<nop>{@}<secref>{@<i>{chapter-id}|subsec-impl}$」のように書いてください。わざわざ@<br>{}
+  「@<code>$@<nop>{@}<secref>{@<i>{chapter-id}|sec-visitor|subsec-impl}$」のように書く必要はありません。@<fn>{yacaz}
+
+//footnote[yacaz][ここで「@<code>{@<i>{chapter-id}}」は章のIDを表します。たとえばファイルが「@<em>{foobar.rb}」なら拡張子を取り除いた「@<em>{foobar}」が章IDです。]
+
+なおこの機能は、@<em>{config-starter.yml}の「@<code>{secref_parenttitle: @<i>{bool}}」で変更できます。
+この値が@<code>{true}なら親となる節のタイトルを付け、@<code>{false}なら付けません。
 
 
-=== 「@<em>$@<nop>{@}<chapref>{}$」や「@<em>$@<nop>{@}<hd>{}$」をリンクに
+=== 「@<code>$@<nop>{@}<chapref>{}$」や「@<code>$@<nop>{@}<hd>{}$」をリンクに
 
 Starterでは、「@<code>$@<nop>{@}<chapref>{}$」や「@<code>$<nop>{@}<hd>{}$」がリンクになるように設定しています。
 そのために次のような設定をしています。
@@ -1826,6 +1890,11 @@ Starterでは、章(Chapter)や節(Section)のデザインを変更できます�
 なおStarterでは、@<img>{chaphead_design_3}のように章タイトルの上下に太い線を入れた場合でも、まえがきや目次やあとがきのタイトルには太い線を入れないようにしています。
 これは意図的な仕様です。
 
+また節タイトルが長すぎて2行になることがあるなら、@<em>{config-starter.yml}での「@<code>{section_decoration:}」の値を「@<code>{leftline}」または「@<code>{numbox}」のどちらかにすることを強くお勧めします（@<img>{sechead_design_4}）。
+ほかの設定では節タイトルが2行になるとデザインが大きく崩れてしまうので注意してください。
+
+//image[sechead_design_4][節タイトルのデザイン：上が「@<code>{leftline}」、下が「@<code>{numbox}」][scale=0.9,border=on]
+
 
 === 章のタイトルページを作成可能
 
@@ -1842,7 +1911,7 @@ Starterでは、章(Chapter)のタイトルと概要を独立したページに�
 = Re:VIEW Starter FAQ
 
 @<letitgo>$//$abstract{
-残念ながら、Re:VIEWでできないことは、Starterでもたいていできません。
+StarterはRe:VIEWを拡張していますが、Re:VIEWの設計にどうしても影響を受けるため、できないことも多々あります。
 
 このFAQでは、「何ができないか？」を中心に解説します。
 @<letitgo>$//$}
@@ -1850,9 +1919,12 @@ Starterでは、章(Chapter)のタイトルと概要を独立したページに�
 @<b>$//makechaptitlepage[toc=section]$
 //}
 
-ただし、「@<code>$//makechaptitlepage[toc=section]$」はすべての章に書く必要があります。
-これを書き忘れた章があると、そこだけ章タイトルページが作られません。
-注意してください。
+注意点が2つあります。
+
+ * 「@<code>$//abstract{ ... }$」は必須です。
+   これがないと、「@<code>$//makechaptitlepage$」があっても章タイトルページが作られません。
+ * 「@<code>$//makechaptitlepage[toc=section]$」はすべての章に書く必要があります。
+   これを書き忘れた章があると、そこだけ章タイトルページが作られません。
 
 
 === スペースがあるのに節や項が改ページされるのを避ける
@@ -2009,6 +2081,46 @@ Starterでは、「@<code>$@<nop>{@}<code>{...}$」を使って文章中に埋�
 //}
 
 
+=== 表紙用PDFファイル
+
+Starterでは、表紙用のPDFファイルを本文のPDFに挿入できます。
+@<em>{config.yml}に以下のような設定をしてください。
+
+//list[][config.yml（下のほう）]{
+pdfmaker:
+  ....(省略)....
+  coverpdf_files: [cover.pdf]  # PDFファイル名（複数指定可）
+  coverpdf_option: "offset=-2.3mm 2.3mm"  # 必要に応じて微調整
+//}
+
+いくつか注意点があります。
+
+ * 電子書籍用PDFでのみ挿入されます。印刷用PDFでは挿入されません@<fn>{w0spr}。
+   電子書籍用PDFを生成する方法は@<secref>{bn2iw}を参照してください。
+ * 表紙画像はPDFのみ対応です。PNGやJPGは対応していません。
+ * 挿入位置がずれる場合は、「@<code>{coverpdf_option:}」の設定を調整してください。
+ * 複数のPDFファイル名は「@<code>{[cover1.pdf, cover2.pdf]}」のように指定します（「@<code>{,}」のあとに半角空白が必要なことに注意）。
+
+//footnote[w0spr][印刷所に入稿する場合、通常は表紙は本文とは別のPDFファイルにします。そのため、印刷用PDFには表紙をつけません。]
+
+//note[PNGやJPGの画像をPDFに変換する]{
+
+macOSにてPNGやJPGをPDFにするには、画像をプレビュー.appで開き、メニューから「ファイル > 書き出す... > フォーマット:PDF」を選んでください。
+
+macOS以外の場合は、「画像をPDFに変換」などでGoogle検索すると変換サービスが見つかります。
+
+//}
+
+//note[表紙画像を他のソフトウェアで挿入する]{
+
+表紙画像を挿入するのは、Re:VIEW Starterや@<LaTeX>{}ではなく他のソフトウェアですると手軽です。
+macOSなら「プレビュー.app」を使えば、PDFに表紙画像を入れたりタイトルページを差し替えるのが簡単にできます。
+
+1つの道具で何でも行うのではなく、目的に応じて道具を変えることを検討してみてください。
+
+//}
+
+
 === タイトルページと奥付を独立したファイルに
 
 Starterでは、タイトルページ（「大扉」といいます）と、本の最終ページにある「奥付」を、それぞれ別ファイルに分離しました。
@@ -2037,8 +2149,87 @@ Starterでは、コラムが長くてページをまたいでしまう場合に�
 //image[column_openframe][コラムがページをまたぐときに横線を入れない][scale=0.8]
 
 
+=== リンクテキストのURLを脚注に記載
+
+Re:VIEWでたとえば@<br>{}
+@<code>$@<nop>{@}<href>{https://pripri-anime.jp/, プリンセス・プリンシパル}$@<br>{}
+のように書くと、ちょうどHTMLにおける@<br>{}
+@<code>$<a href="https://pripri-anime.jp/">プリンセス・プリンシパル</a>$@<br>{}
+のようなリンクテキストになります。
+しかしHTMLならリンク先のURLを調べられますが、PDFにして印刷するとリンクのURLが何だったのか、読者には分かりません。
+
+そこでStarterでは、PDFの場合はリンクテキストのURLを脚注に記載するようにしました。
+たとえば「@<code>$@<nop>{@}<href>{https://pripri-anime.jp/, プリンセス・プリンシパル}$」は「@<href>{https://pripri-anime.jp/, プリンセス・プリンシパル}」のように表示されます。
+
+また脚注の中のリンクテキストでは、脚注を使わないようにしています。
+たとえば「@<code>$//footnote[pripri][@<nop>{@}<href>{https://pripri-anime.jp/, プリンセス・プリンシパル}の劇場アニメは2020年4月公開！$」は脚注の中にリンクテキストがあるので、このページ下の脚注のように表示されます@<fn>{pripri}。
+
+//footnote[pripri][@<href>{https://pripri-anime.jp/, プリンセス・プリンシパル}の劇場アニメは2020年4月公開！]
+
+なおこの挙動は、@<em>{config-starter.yml}の「@<code>{linkurl_footnote: @<i>{bool}}」で制御できます。
+この値が@<code>{true}ならURLを脚注に記載し、@<code>{false}ならしません。
+
 
 =={sec-sty} @<LaTeX>{}のコマンドやスタイルファイルに関する機能
+
+
+=== Dockerコマンドを簡単に起動するタスクを追加
+
+Docker環境を使ってPDFをコンパイルするには、次のようなコマンドの入力が必要です。
+
+//terminal[][Docker環境を使ってPDFをコンパイルする]{
+$ docker run --rm -v $PWD:/work kauplan/review2.5 /bin/bash -c "cd /work; rake pdf"
+//}
+
+しかしこれは長いので、「@<code>{rake docker:pdf}」でコンパイルできるようにしました。
+
+//terminal[][より簡単にDocker環境でPDFをコンパイルする]{
+$ rake docker:pdf
+//}
+
+他にも次のようなrakeタスクを用意しました。
+
+ * @<code>{rake docker:pull} ： @<code>{docker pull kauplan/review2.5}を実行する。
+ * @<code>{rake docker:pdf} ： Docker経由でPDFを生成する。
+ * @<code>{rake docker:pdf:nombre} ： Docker経由でPDFにノンブルをつける。
+ * @<code>{rake docker:epub} ： Docker経由でePubページを作成する。
+ * @<code>{rake docker:web} ： Docker経由でWebページを作成する。
+ * @<code>{rake docker:web:server} ： Docker経由でWebサーバを起動する。
+
+なおこれらのタスクでは、「@<tt>{STARTER_}」で始まる環境変数も継承されます。
+
+
+=== 自動リロードつきプレビュー機能
+
+Starterでは、HTMLでプレビューするための機能を用意しました。
+便利なことに、原稿を変更すると自動的にリロードされます。
+PDFと比べてHTMLの生成はずっと高速なので、原稿執筆中に入力間違いを見つけるにはHTMLのほうが向いています。
+
+使い方は、まずWebサーバを起動します。
+
+//terminal[][Webサーバを起動する]{
+$ rake web:server          # ← Dockerを使っていない場合
+$ rake docker:web:server   # ← Dockerを使っている場合
+//}
+
+起動したらブラウザで http://localhost:9000/ にアクセスし、適当な章を開いてください。
+
+そして開いた章の原稿ファイル（@<em>{*.re}）を変更すると、ブラウザの画面が自動的にリロードされ、変更が反映されます。
+
+原稿執筆中は、エディタのウィンドウの後ろにプレビュー画面が少し見えるようにするといいでしょう。
+
+いくつか注意点があります。
+
+ * 表示はHTMLで行っているため、PDFでの表示とは差異があります。
+   執筆中はHTMLでプレビューし、区切りのいいところでPDFで表示を確認するといいでしょう。
+ * 今のところ数式はプレビューできません。
+ * 変更が反映されるのは、開いているページと対応した原稿ファイルが変更された場合だけです。
+   たとえば「@<em>{foo.html}」を開いているときに「@<em>{foo.re}」を変更するとプレビューに反映されますが、別の「@<em>{bar.re}」を変更しても反映されません。
+ * 画面右上の「Rebuild and Reload」リンクをクリックすると、原稿ファイルが変更されていなくても強制的にコンパイルとリロードがされます。
+ * 原稿ファイルに入力間違いがあった場合は、画面にエラーが表示されます。
+   エラー表示はあまり分かりやすくはないので、今後改善される予定です。
+ * Webサーバを終了するには、Controlキーを押しながら「c」を押してください。
+
 
 === スタイルシートを追加
 
@@ -2125,11 +2316,17 @@ Starterでは、環境変数「@<code>{$STARTER_CHAPTER}」を設定するとそ
 
 //terminal[][例：chap02-faq.reだけをコンパイルする]{
 bash$ export STARTER_CHAPTER=chap02-faq   # 「.re」はつけない
-bash$ rake pdf
+bash$ rake pdf  # またはDockerを使っているなら rake docker:pdf
 //}
 
 このとき、他の章は無視されます。
 また表紙や目次や大扉や奥付も無視されます。
+
+全体をコンパイルする場合は、「@<code>{$STARTER_CHAPTER}」をリセットしてください。
+
+//terminal[][全体をコンパイルする]{
+bash$ unset STARTER_CHAPTER    # 「$」はつけないことに注意
+//}
 
 
 ==={8v2z5} ドラフトモードにして画像読み込みを省略する
@@ -2144,7 +2341,7 @@ Starterでは画像の読み込みを省略する「ドラフトモード」を�
 
 //terminal[][ドラフトモードにしてPDFを生成する]{
 $ export STARTER_DRAFT=1  # ドラフトモードをonにする
-$ rake pdf
+$ rake pdf                # またはDocker環境なら rake docker:pdf
 
 $ unset STARTER_DRAFT     # ドラフトモードをoffにする
 //}
@@ -2171,7 +2368,7 @@ $ unset STARTER_DRAFT     # ドラフトモードをoffにする
 
 今のところ、この方法がいちばん妥当でしょう。
 
-なおこの変更は「@<em>{rake pdf}」コマンドでのみ行われます@<fn>{g6wy6}。
+なおこの変更は「@<em>{rake pdf}」または「@<em>{rake docker:pdf}」コマンドでのみ行われます@<fn>{g6wy6}。
 「@<em>{review-pdfmaker config.yml}」を実行した場合はもとの挙動（つまりコンパイルメッセージがたくさん出る）になるので注意してください。
 //footnote[g6wy6][実装の詳細は@<em>{lib/tasks/review.rake}を参照してください。]
 
@@ -2197,7 +2394,7 @@ Starterでは、実行する@<LaTeX>{}コマンドをオプションつきで出
 こうすることで、特にエラーが発生した場合にどんなコマンドを実行したかを調べるのに役立ちます。
 //footnote[7a93y][この変更は、@<em>{lib/tasks/review.rake}で定義されている「@<code>{pdf}」タスクを書き換えることで実現しています。]
 
-ただしこれは「@<code>{rake pdf}」を実行したときだけであり、コマンドラインから直接「@<code>{review-pdfmaker config.yml}」を実行したときは出力されません@<fn>{orc59}ので注意してください。
+ただしこれは「@<code>{rake pdf}」または「@<code>{rake docker:pdf}」を実行したときだけであり、コマンドラインから直接「@<code>{review-pdfmaker config.yml}」を実行したときは出力されません@<fn>{orc59}ので注意してください。
 //footnote[orc59][なぜなら、この変更は「@<code>{pdf}」タスクを書き換えることで実現しているので、@<em>{review-pdfmaker}コマンドには影響しないからです。]
 
 次が実行例です。
@@ -2276,8 +2473,8 @@ Starterでは、PDFにノンブルをつけるためのrakeタスク「@<em>{pdf
 //footnote[nqjz9][@<em>{lib/tasks/starter.rake}で定義されています。]
 
 //terminal{
-$ gem install combine_pdf    # 事前作業（最初の1回だけ）
-$ rake pdf:nombre
+$ gem install combine_pdf  # 事前作業（最初の1回だけ）
+$ rake pdf:nombre          # Docker環境なら rake docker:pdf:nombre
 //}
 
 これで、PDFファイルにノンブルがつきます。
@@ -2299,19 +2496,24 @@ Re:VIEWでは、rakeのデフォルトタスクが「@<em>{epub}」になって�
 //terminal[][引数なしでrakeコマンドを実行すると、rakeの使い方が表示される][fold=off]{
 $ rake
 rake -T
-rake all            # generate PDF and EPUB file
-rake clean          # Remove any temporary products
-rake clobber        # Remove any generated files
-rake epub           # generate EPUB file
-rake help           # + list tasks
-rake html           # build html (Usage: rake build re=target.re)
-rake html_all       # build all html
-rake images         # + convert images (high resolution -> low resolution)
-rake images:toggle  # + toggle image directories ('images_{lowres,highres}')
-rake pdf            # generate PDF file
-rake pdf:nombre     # + add nombre (rake pdf:nombre [file=*.pdf] [out=*.pdf])
-rake preproc        # preproc all
-rake web            # generate stagic HTML file for web
+rake all                # generate PDF and EPUB file
+rake clean              # Remove any temporary products
+rake clobber            # Remove any generated files
+rake docker:epub        # + run 'rake epub' on docker
+rake docker:pdf         # + run 'rake pdf' on docker
+rake docker:pdf:nombre  # + run 'rake pdf:nombre' on docker
+rake docker:setup       # + pull docker image for building PDF file
+rake docker:web         # + run 'rake web' on docker
+rake epub               # generate EPUB file
+rake help               # + list tasks
+rake html               # build html (Usage: rake build re=target.re)
+rake html_all           # build all html
+rake images             # + convert images (high resolution -> low resolution)
+rake images:toggle      # + toggle image directories ('images_{lowres,highres}')
+rake pdf                # generate PDF file
+rake pdf:nombre         # + add nombre (rake pdf:nombre [file=*.pdf] [out=*.pdf])
+rake preproc            # preproc all
+rake web                # generate stagic HTML file for web
 //}
 
 上の表示結果のうち、コマンドの説明文の先頭に「@<code>{+}」がついているのが、Starterで独自に用意したタスクです。
