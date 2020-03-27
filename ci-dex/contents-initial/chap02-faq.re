@@ -1,7 +1,7 @@
 = Re:VIEW Starter FAQ
 
 //abstract{
-残念ながら、Re:VIEWでできないことは、Starterでもたいていできません。
+StarterはRe:VIEWを拡張していますが、Re:VIEWの設計にどうしても影響を受けるため、できないことも多々あります。
 
 このFAQでは、「何ができないか？」を中心に解説します。
 //}
@@ -674,10 +674,50 @@ Starterで長い行が自動的に折り返されるとき、右端にはまだ�
 //image[codeblock_rpadding2][表示幅をほんの少し広げると、右端まで埋まるようになった][scale=0.7]
 
 
-== 文章中のコードに背景色をつけたいんだけど？
+=== IDEのように、ソースコードにインデント記号をつけたい
 
-Starterでは、「@<code>$@<nop>{@}<code>{...}$」を使って文章中に埋め込んだソースコードに背景色（薄いグレー）をつけられます。
+Starterでは、「@<code>$//list[][][@<code>{indentwidth=4}]{$」のように指定するとインデントを示す記号がつきます。
+
+//list[][インデント記号の例][indentwidth=4]{
+class Example:
+    def fib(n):
+        if n <= 1:
+            return n
+        else:
+            return fib(n-1) + fib(n-2)
+//}
+
+この機能は、Pythonのようにインデントでブロックを表す（つまりブロックの終わりを表す記号がない）ようなプログラミング言語のコードを表示するときに、特に有効です。
+なぜなら、コードの途中で改ページされるとブロック構造が分からなくなるからです。
+
+
+=== 文章中のコードに背景色をつけたいんだけど？
+
+Starterでは、「@<code>$@<nop>{@}<code>{...}$」を使って文章中に埋め込んだコードに背景色（薄いグレー）をつけられます。
 詳しくは@<secref>{chap01-starter|tyly6}を参照してください。
+
+
+=== 文章中の長いコードは折り返してくれないの？
+
+Starterでは、文章中に「@<code>$@<nop>{@}<code>{...}$」で埋め込んだコードが長いときに、自動的には折り返しされません。
+現在、方法を調査中です。
+
+（現時点での問題点）
+
+ * 「@<code>$\texttt{\seqsplit{}}$」を使うと、半角空白が消えてしまう@<fn>{yvg5n}。
+ * 「@<code>$\colorbox{}$」を使うと、「@<code>$\seqsplit{}$」を使っても折り返しされない。
+
+//footnote[yvg5n][参考：@<href>{https://twitter.com/_kauplan/status/1222749789336399872}]
+
+
+=== 文章中のコードで半角空白が勝手に広がるのはなぜ？
+
+@<LaTeX>{}では、「@<code>$\texttt{}$」内において「@<code>{!}」「@<code>{?}」「@<code>{:}」「@<code>{.}」の直後に半角空白があると、なぜか2文字分の幅で表示されてしまいます@<fn>{m7qxm}。
+
+Starterではこの問題に対処し、1文字分の幅で表示するように修正しました。
+Re:VIEWではこの問題が発生すると思われるので、Starterを使ってみてください。
+
+//footnote[m7qxm][参考：@<href>{https://twitter.com/_kauplan/status/1222764086657597440}]
 
 
 
@@ -784,7 +824,8 @@ PREPARES.unshift :my_preparation  # 前処理の先頭に追加
 
 //embed[latex]{
 \begin{center}
-  \gtfamily\sffamily\bfseries\ebseries\Huge
+  \gtfamily\sffamily\bfseries\Huge
+  \makeatletter\@ifundefined{ebseries}{}{\ebseries}\makeatother
   週末なにしてますか?
   忙しいですか?
   金魚すくってもらっていいですか?
@@ -809,7 +850,8 @@ booktitle: |-
 
 //embed[latex]{
 \begin{center}
-  \gtfamily\sffamily\bfseries\ebseries\Huge
+  \gtfamily\sffamily\bfseries\Huge
+  \makeatletter\@ifundefined{ebseries}{}{\ebseries}\makeatother
   週末なにしてますか?\\
   忙しいですか?\\
   金魚すくってもらっていいですか?\par
@@ -830,8 +872,8 @@ Starterではなく、素のRe:VIEWやTechboosterのテンプレートを使っ�
 \begin{center}%
   \mbox{} \vskip5zw
    \reviewtitlefont%
-    @<del>${\HUGE\bfseries <%= escape_latex(@config.name_of("booktitle")) %> \par}%$
-    @<b>${\HUGE\bfseries 週末なにしてますか?\newline%$
+    @<del>${\Huge\bfseries <%= escape_latex(@config.name_of("booktitle")) %> \par}%$
+    @<b>${\Huge\bfseries 週末なにしてますか?\newline%$
     @<b>$                忙しいですか?\newline%$
     @<b>$                金魚すくってもらっていいですか?\par}%$
 ....(省略)....
@@ -901,14 +943,26 @@ $ mv *.re contents  @<balloon>{すべての原稿ファイルをそこに移動}
 //}
 
 この機能はRe:VIEW ver.3からですが、現在はStarterも対応しています。
-またこの機能を使う場合、Starterでは次の点に注意してください@<fn>{0azcw}。
+またこの機能を使う場合、Starterでは次の点に注意してください。
 
  * カレントディレクトリに*.reファイルを一切置かないようにしてください。
    置くとエラーになります。
  * コンパイルには必ず「@<code>{rake pdf}」や「@<code>{rake epub}」を使ってください。
    「@<code>{review-pdfmaker}」や「@<code>{review-epubmaker}」だとこの機能が使えません。
 
-//footnote[0azcw][このような制限事項があるのは、StarterではRakeタスクによる前処理としてこの機能を実現しているためです。詳しくは@<em>{lib/tasks/review.task}の@<em>{prepare}タスクを読んでみてください。]
+//note[「contentdir:」の仕組み]{
+
+上に挙げた制約が生じるのは、Re:VIEW Starterでは「@<code>{contentdir:}」を次のように扱っているためです。
+
+ 1. Rakeタスク「@<code>{take pdf}」の前処理で、「@<code>{contentdir:}」に指定したディレクトリの中の@<em>{*.re}ファイルをカレントディレクトリにコピー。
+ 2. PDFを生成。
+ 3. カレントディレクトリから@<em>{*.re}ファイルを削除。
+
+詳しくは@<em>{lib/tasks/review.task}の@<em>{prepare}タスクを読んでみてください。
+
+なお、この仕組みはRe:VIEWと違っているので注意してください。
+
+//}
 
 
 ==={qvtlq} 印刷用と電子用で設定を少し変えるにはどうするの？
