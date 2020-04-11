@@ -67,13 +67,13 @@ jobs:
       - name: Notify slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: pullreminders/slack-action@v1.0.7
+        uses: pullreminders/slack-action@v1.0.9
         with:
           args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"Upload new pdf!!\"}'
       - name: Notify slack (fail)
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
-        uses: pullreminders/slack-action@v1.0.7
+        uses: pullreminders/slack-action@v1.0.9
         with:
           args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/ci-dex-book/actions\"}'
