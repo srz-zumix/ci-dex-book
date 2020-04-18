@@ -7,7 +7,7 @@ Buddy
 CircleCI			
 Cirrus CI			
 Codefresh			
-Codeship			
+CodeShip			
 Drone				
 GitHub Actions		
 Semaphore			

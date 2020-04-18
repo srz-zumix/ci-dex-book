@@ -24,6 +24,10 @@ jobs:
         with:
           path: ./ci-dex/contents/images
           formats: "JPEG"
+      - name: Syntax
+        run: |
+          cd ./ci-dex/contents
+          find . -name "*.re" | xargs grep -one "@<href>{[^}]*#[^}]*}" && exit 1
       - name: Notify slack (fail)
         if: failure()
         env:

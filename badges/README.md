@@ -9,7 +9,7 @@
 |CircleCI|![CircleCI PASS](./circleci-pass.svg)|![CircleCI FAILE](./circleci-fail.svg)|
 |Cirrus CI|![Cirrus CI PASS](./cirrus-ci-pass.svg)|![Cirrus CI FAILE](./cirrus-ci-fail.svg)|
 |Codefresh|![Codefresh PASS](./codefresh-pass.svg)|![Codefresh FAILE](./codefresh-fail.svg)|
-|Codeship|![Codeship PASS](./codeship-pass.svg)|![Codeship FAILE](./codeship-fail.svg)|
+|CodeShip|![CodeShip PASS](./codeship-pass.svg)|![CodeShip FAILE](./codeship-fail.svg)|
 |Drone|![Drone PASS](./drone-pass.svg)|![Drone FAILE](./drone-fail.svg)|
 |GitHub Actions|![GitHub Actions PASS](./github-actions-pass.svg)|![GitHub Actions FAILE](./github-actions-fail.svg)|
 |Semaphore|![Semaphore PASS](./semaphore-pass.svg)|![Semaphore FAILE](./semaphore-fail.svg)|
