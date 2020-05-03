@@ -22,11 +22,12 @@ CHAPS:
   - 無料で使える CI サービス比較:
     - c101-vs-env.re
     - c102-vs-specs.re
-    - c103-vs-yaml.re
-    - c104-vs-comment-command.re
-    - c105-vs-share.re
-    - c106-vs-security.re
-    - c130-vs-badge.re
+    - c103-vs-parallel.re
+    - c110-vs-yaml.re
+    - c120-vs-comment-command.re
+    - c150-vs-share.re
+    - c160-vs-security.re
+    - c199-vs-badge-e.re
 
 APPENDIX:
   - c200-appendix.re
