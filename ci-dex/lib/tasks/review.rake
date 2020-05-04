@@ -70,7 +70,10 @@ end
 desc 'generate EPUB file'
 task :epub => :prepare do
   FileUtils.rm_rf [BOOK_EPUB, BOOK, BOOK + '-epub']
-  sh "review-epubmaker #{config_file()}"
+  #sh "review-epubmaker #{config_file()}"
+  require 'review'
+  require './lib/ruby/review-epubmaker'
+  ReVIEW::EpubMaker.execute(config_file())
 end
 
 desc 'generate stagic HTML file for web'
@@ -78,7 +81,7 @@ task :web => :prepare do
   FileUtils.rm_rf [WEBROOT]
   #sh "review-webmaker #{config_file()}"
   require 'review'
-  #require 'review/pdfmaker'
+  #require 'review/webmaker'
   require './lib/ruby/review-webmaker'
   ReVIEW::WEBMaker.execute(config_file())
 end

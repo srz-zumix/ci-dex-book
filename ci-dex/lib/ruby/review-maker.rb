@@ -68,6 +68,10 @@ module ReVIEW
       raise NotImplementedError.new("#{self.class.name}#generate(): not implemented yet.")
     end
 
+    def debug?
+      return @config['debug']
+    end
+
     protected
 
     def load_config(config_filename, additionals={})

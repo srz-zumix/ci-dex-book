@@ -41,12 +41,12 @@ jobs:
           config: config-e.yml
         with:
           entrypoint: bash
-          args: -c "cd ci-dex; rake preproc pdf"
-          # args: -c "cd ci-dex; rake preproc all"
+          # args: -c "cd ci-dex; rake preproc pdf"
+          args: -c "cd ci-dex; rake preproc all"
       - name: copy artifacts
         run: |
           cp ci-dex/ci-dex.pdf ./artifacts/e-ci-dex.pdf
-          # cp ci-dex/ci-dex.epub ./artifacts/e-ci-dex.epub
+          cp ci-dex/ci-dex.epub ./artifacts/e-ci-dex.epub || true
       - name: Extract branch name
         id: extract_branch
         run: |

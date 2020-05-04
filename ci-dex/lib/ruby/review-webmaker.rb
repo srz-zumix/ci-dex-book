@@ -11,6 +11,7 @@ require 'erb'
 require 'review/converter'
 require 'review/htmlbuilder'
 require 'review/template'
+require 'review/webmaker'
 require_relative './review-maker'
 
 
