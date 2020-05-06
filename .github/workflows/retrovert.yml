@@ -35,7 +35,7 @@ jobs:
       - uses: docker://srzzumix/review-retorvert
         with:
           entrypoint: bash
-          args: -c "cd ci-dex-r; rake preproc pdf pdf:nombre"
+          args: -c "cd ci-dex-r; rake preproc pdf"
       - name: copy artifacts
         run: |
           mkdir artifacts
