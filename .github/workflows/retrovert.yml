@@ -79,11 +79,11 @@ jobs:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: pullreminders/slack-action@v1.0.9
         with:
-          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"Upload new pdf!!\"}'
+          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"Upload new retrovert pdf!!\"}'
       - name: Notify slack (fail)
         if: failure()
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
         uses: pullreminders/slack-action@v1.0.9
         with:
-          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> fail https://github.com/srz-zumix/ci-dex-book/actions\"}'
+          args: '{\"channel\":\"CSYR0PEHW\",\"text\":\"<!here> (retrovert) fail https://github.com/srz-zumix/ci-dex-book/actions\"}'
