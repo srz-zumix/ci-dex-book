@@ -53,10 +53,10 @@ jobs:
       #     entrypoint: bash
       #     # args: -c "cd ci-dex-r; rake preproc pdf"
       #     args: -c "cd ci-dex-r; rake preproc all"
-      - name: copy artifacts
-        run: |
-          cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
-          cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
+      # - name: copy artifacts
+      #   run: |
+      #     cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
+      #     cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
       - name: Extract branch name
         id: extract_branch
         run: |
