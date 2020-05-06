@@ -30,7 +30,7 @@ jobs:
       - uses: docker://srzzumix/review-retorvert
         with:
           entrypoint: bash
-          args: -c "review-retrovert ci-dex/config.yml ci-dex-r"
+          args: -c "review-retrovert convert ci-dex/config.yml ci-dex-r"
       # 印刷版
       - uses: docker://srzzumix/review-retorvert
         with:
@@ -44,7 +44,7 @@ jobs:
       # - uses: docker://srzzumix/review-retorvert
       #   with:
       #     entrypoint: bash
-      #     args: -c "review-retrovert ci-dex/config-e.yml ci-dex-r"
+      #     args: -c "review-retrovert merge ci-dex/config-e.yml ci-dex-r"
       # # 電子書籍版
       # - uses: docker://srzzumix/review-retorvert
       #   env:
