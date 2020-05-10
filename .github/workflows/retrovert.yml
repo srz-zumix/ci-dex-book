@@ -57,14 +57,6 @@ jobs:
       #   run: |
       #     cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
       #     cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
-      - uses: srz-zumix/actions-book-image-check@master
-        with:
-          path: ./ci-dex-r/contents/images
-          formats: "JPEG"
-      - name: Syntax
-        run: |
-          cd ./ci-dex-r/contents
-          find . -name "*.re" | xargs grep -one "@<href>{[^}]*#[^}]*}" && exit 1
       - name: Extract branch name
         id: extract_branch
         run: |
@@ -82,6 +74,14 @@ jobs:
           skicka-tokencache-json: ${{ secrets.SKICKA_TOKENCACHE_JSON }}
           google-client-id: ${{ secrets.SKICKA_CLIENT_ID }}
           google-client-secret: ${{ secrets.SKICKA_CLIENT_SECRET }}
+      - uses: srz-zumix/actions-book-image-check@master
+        with:
+          path: ./ci-dex-r/images
+          formats: "JPEG"
+      - name: Syntax
+        run: |
+          cd ./ci-dex-r
+          find . -name "*.re" | xargs grep -one "@<href>{[^}]*#[^}]*}" && exit 1
       - name: Notify slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
