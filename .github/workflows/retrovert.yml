@@ -57,6 +57,14 @@ jobs:
       #   run: |
       #     cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
       #     cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
+      - uses: srz-zumix/actions-book-image-check@master
+        with:
+          path: ./ci-dex-r/contents/images
+          formats: "JPEG"
+      - name: Syntax
+        run: |
+          cd ./ci-dex-r/contents
+          find . -name "*.re" | xargs grep -one "@<href>{[^}]*#[^}]*}" && exit 1
       - name: Extract branch name
         id: extract_branch
         run: |
