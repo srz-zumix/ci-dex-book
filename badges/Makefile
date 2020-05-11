@@ -1,8 +1,8 @@
 
 SVG = $(wildcard *.svg)
-DPI := 96
+DPI := 350
 DIRPREFIX = badge-png
-TARGETS = $(SVG:%.svg=$(DIRPREFIX)$(DPI)/%.png)
+TARGETS = $(SVG:%.svg=$(DIRPREFIX)$(DPI)/%.jpg)
 
 default: $(TARGETS)
 
@@ -12,5 +12,5 @@ clean:
 $(DIRPREFIX)$(DPI):
 	mkdir $@
 
-$(DIRPREFIX)$(DPI)/%.png: %.svg $(DIRPREFIX)$(DPI)
+$(DIRPREFIX)$(DPI)/%.jpg: %.svg $(DIRPREFIX)$(DPI)
 	inkscape -z -d $(DPI) -f $< -e $@

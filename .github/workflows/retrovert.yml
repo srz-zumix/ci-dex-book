@@ -81,7 +81,7 @@ jobs:
       - name: Syntax
         run: |
           cd ./ci-dex-r
-          find . -name "*.re" | xargs grep -one "@<href>{[^}]*#[^}]*}" && exit 1
+          find . -name "*.re" | ! xargs grep -one "@<href>{[^}]*#[^}]*}"
       - name: Notify slack
         env:
           SLACK_BOT_TOKEN: ${{ secrets.SLACK_BOT_TOKEN }}
