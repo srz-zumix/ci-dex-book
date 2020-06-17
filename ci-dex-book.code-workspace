@@ -4,5 +4,21 @@
 			"path": "."
 		}
 	],
-	"settings": {}
+	"settings": {},
+	"launch": {
+		"configurations": [
+			{
+				"type": "codexm-debug",
+				"request": "launch",
+				"name": "Sample CodeXM Checker Configuration",
+				"targetedSourceFiles": [
+					"/Users/takazumi.shirayanagi/.synopsys/desktop/cxm/sample/SampleSourceFile.js"
+				],
+				"cxmFiles": [
+					"/Users/takazumi.shirayanagi/.synopsys/desktop/cxm/sample/SampleChecker.cxm"
+				],
+				"buildCommand": ""
+			}
+		]
+	}
 }
