@@ -17,7 +17,7 @@ CHAPS:
     - c010-semaphore.re
     - c010-shippable.re
     - c010-travis-ci.re
-    # - c010-wercker.re
+    - c010-wercker.re
     - c090-free-others.re
   - 無料で使える CI サービス比較:
     - c101-vs-env.re
