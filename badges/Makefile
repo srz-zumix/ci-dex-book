@@ -24,7 +24,7 @@ $(DIRPREFIX)jpg$(DPI):
 	mkdir $@
 
 $(DIRPREFIX)png$(DPI)/%.png: %.svg $(DIRPREFIX)png$(DPI) Makefile
-	inkscape -z -d $(DPI) -h 146 -f $< -e $@
+	inkscape -z -d $(DPI) -h 219 -f $< -e $@
 
 $(DIRPREFIX)jpg$(DPI)/%.jpg: $(DIRPREFIX)png$(DPI)/%.png $(DIRPREFIX)jpg$(DPI) Makefile docker
 # $(DIRPREFIX)jpg$(DPI)/%.jpg: %.svg $(DIRPREFIX)jpg$(DPI)
