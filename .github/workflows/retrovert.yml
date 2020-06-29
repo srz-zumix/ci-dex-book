@@ -29,8 +29,7 @@ jobs:
       # convert
       - uses: docker://srzzumix/review-retrovert
         with:
-          entrypoint: bash
-          args: -c "review-retrovert convert ci-dex/config.yml ci-dex-r"
+          args: "convert ci-dex/config.yml ci-dex-r"
       # 印刷版
       - uses: docker://srzzumix/review-retrovert
         with:
