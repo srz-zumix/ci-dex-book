@@ -39,23 +39,23 @@ jobs:
         run: |
           mkdir artifacts
           cp ci-dex-r/ci-dex.pdf ./artifacts
-      # # convert
-      # - uses: docker://srzzumix/review-retrovert
-      #   with:
-      #     entrypoint: bash
-      #     args: -c "review-retrovert merge ci-dex/config-e.yml ci-dex-r"
-      # # 電子書籍版
-      # - uses: docker://srzzumix/review-retrovert
-      #   env:
-      #     config: config-e.yml
-      #   with:
-      #     entrypoint: bash
-      #     # args: -c "cd ci-dex-r; rake preproc pdf"
-      #     args: -c "cd ci-dex-r; rake preproc all"
-      # - name: copy artifacts
-      #   run: |
-      #     cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
-      #     cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
+      # convert
+      - uses: docker://srzzumix/review-retrovert
+        with:
+          entrypoint: bash
+          args: -c "review-retrovert merge ci-dex/config-e.yml ci-dex-r"
+      # 電子書籍版
+      - uses: docker://srzzumix/review-retrovert
+        env:
+          config: config-e.yml
+        with:
+          entrypoint: bash
+          # args: -c "cd ci-dex-r; rake preproc pdf"
+          args: -c "cd ci-dex-r; rake preproc all"
+      - name: copy artifacts
+        run: |
+          cp ci-dex-r/ci-dex.pdf ./artifacts/e-ci-dex.pdf
+          cp ci-dex-r/ci-dex.epub ./artifacts/e-ci-dex.epub || true
       - name: Extract branch name
         id: extract_branch
         run: |
@@ -68,7 +68,7 @@ jobs:
       - name: Upload to Google Drive
         uses: satackey/action-google-drive@v1
         with:
-          upload-from: ./artifacts
+          upload-from: ./artifacts/
           upload-to: /BOOK/techbookfest/ci-dex-retrovert/${{ steps.extract_branch.outputs.branch }}
           skicka-tokencache-json: ${{ secrets.SKICKA_TOKENCACHE_JSON }}
           google-client-id: ${{ secrets.SKICKA_CLIENT_ID }}
@@ -77,6 +77,7 @@ jobs:
         with:
           path: ./ci-dex-r/images
           formats: "JPEG"
+          exit_code_0: false
       - name: Syntax
         run: |
           cd ./ci-dex-r
