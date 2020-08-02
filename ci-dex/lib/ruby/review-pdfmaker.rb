@@ -71,7 +71,7 @@ module ReVIEW
       else
         ## 目次と相互参照に関するファイルだけを残し、あとは削除
         Pathname.new(dir).children.each do |x|
-          next if x.basename.to_s =~ /\.(aux|toc|mtc\d*|maf)\z/
+          next if x.basename.to_s =~ /\.(aux|toc|out|mtc\d*|maf)\z/
           x.rmtree()
         end
       end
@@ -405,7 +405,8 @@ module ReVIEW
         names = @config.names_of(role)
         sep   = i18n('names_splitter')
         str   = [names].flatten.join(sep)
-        return "#{i18n(role)} & #{escape_latex(str)} \\\\\n"
+        #return "#{i18n(role)} & #{escape_latex(str)} \\\\\n"
+        return "\\startercolophonrow{#{i18n(role)}}{#{escape_latex(str)}}\n"
       end
 
       def make_colophon()

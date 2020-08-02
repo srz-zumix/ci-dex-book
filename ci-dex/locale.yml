@@ -2,3 +2,5 @@
 locale: ja
 #chapter_postfix: "　"
 chapter_postfix: ""
+
+equation: 式

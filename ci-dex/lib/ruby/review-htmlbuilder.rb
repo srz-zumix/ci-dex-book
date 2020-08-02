@@ -86,6 +86,19 @@ module ReVIEW
       end
     end
 
+    def result_metric(array)
+      attrs = {}
+      array.each do |item|
+        k = item.keys[0]
+        v = item[k]
+        if k == 'border' && v == 'on'
+          k = 'class'; v = 'border-on'
+        end
+        (attrs[k] ||= []) << v
+      end
+      attrs.map {|k, arr| " #{k}=\"#{arr.join(' ')}\"" }.join()
+    end
+
     def image_image(id, caption, metric)
       src = @chapter.image(id).path.sub(%r{\A\./}, '')
       alt = escape_html(compile_inline(caption))
@@ -342,6 +355,35 @@ module ReVIEW
       puts  "</div><!--/.footnote-list-->\n"
     end
 
+    alias __original_texequation texequation
+    def texequation(lines, label=nil, caption=nil)
+      if label.present?
+        chap = get_chap()
+        if chap.nil?
+          key  = "format_number_header_without_chapter"
+          args = [@chapter.equation(label).number]
+        else
+          key  = "format_number_header"
+          args = [chap, @chapter.equation(label).number]
+        end
+        s1 = I18n.t("equation")
+        s2 = I18n.t(key, args)
+        s3 = I18n.t("caption_prefix")
+        s4 = compile_inline(caption)
+        puts "<span class=\"caption\">#{s1}#{s2}#{s3}#{s4}</span>"
+        has_caption_line = true
+      elsif caption.present?
+        s3 = I18n.t("caption_prefix")
+        s4 = compile_inline(caption)
+        puts "<span class=\"caption\">#{s3}#{s4}</span>"
+        has_caption_line = true
+      else
+        has_caption_line = false
+      end
+      #
+      __original_texequation(lines)
+    end
+
     ## 章 (Chapter) の概要
     def abstract(lines)
       puts '<div class="abstract">'
@@ -350,7 +392,24 @@ module ReVIEW
     end
 
     ## 章タイトルを独立したページに
-    def makechaptitlepage(lines, option)
+    def makechaptitlepage(option=nil)
+      puts ''   # HTMLでは特に何もしない
+    end
+
+    ## 縦方向のスペースがなければ改ページ
+    def needvspace(builder_name, height)
+      if builder_name == 'html' || builder_name == 'epub'
+        puts "<div style=\"height:#{height}\"></div>"
+      end
+    end
+
+    ## 段(Paragraph)の終わりにスペースを入れる
+    def paragraphend()
+      puts ''   # HTMLでは特に何もしない
+    end
+
+    ## 小段(Subparagraph)の終わりにスペースを入れる（あれば）
+    def subparagraphend()
       puts ''   # HTMLでは特に何もしない
     end
 
@@ -392,7 +451,7 @@ module ReVIEW
       else
         puts "<div class=\"note\">"
       end
-      puts "<h5>#{caption}</h5>" if caption.present?
+      puts "<h5>#{compile_inline(caption)}</h5>" if caption.present?
       yield
       puts "</div>"
     end
@@ -414,6 +473,33 @@ module ReVIEW
     end
 
     #### インライン命令
+
+    def inline_fn(id)
+      if @book.config['epubversion'].to_i == 3
+        type = " epub:type=\"noteref\""
+      else
+        type = ""
+      end
+      return "<sup><a id=\"fnb-#{normalize_id(id)}\" href=\"#fn-#{normalize_id(id)}\" class=\"noteref\"#{type}>*#{@chapter.footnote(id).number}</a></sup>"
+    rescue KeyError
+      error "unknown footnote: #{id}"
+    end
+
+    ## ファイル名
+    def inline_file(str)
+      on_inline_file { escape(str) }
+    end
+    def on_inline_file
+      "<span class=\"file\">#{yield}</span>"
+    end
+
+    ## ユーザ入力
+    def inline_userinput(str)
+      on_inline_input { escape(str) }
+    end
+    def on_inline_userinput
+      "<span class=\"userinput\">#{yield}</span>"
+    end
 
     ## 引数をそのまま表示 (No Operation)
     def inline_nop(str)
@@ -475,10 +561,21 @@ module ReVIEW
     def on_inline_strong(); "<strong>#{yield}</strong>" ; end
     def on_inline_u()     ; "<u>#{yield}</u>"           ; end
     def on_inline_ami()   ; "<span class=\"ami\">#{yield}</span>"; end
-    def on_inline_balloon(); "<span class=\"balloon\">#{yield}</span>"; end
+    def on_inline_balloon(); "<span class=\"balloon\">← #{yield}</span>"; end
 
     def build_inline_href(url, escaped_label)  # compile_href()をベースに改造
-      if @book.config['externallink']
+      flag_link = @book.config['externallink']
+      return _inline_hyperlink(url, escaped_label, flag_link)
+    end
+
+    def inline_hlink(str)
+      url, label = str.split(/, /, 2)
+      flag_link = @book.config['externallink']
+      return _inline_hyperlink(url, escape(label), flag_link)
+    end
+
+    def _inline_hyperlink(url, escaped_label, flag_link)
+      if flag_link
         label = escaped_label || escape_html(url)
         "<a href=\"#{escape_html(url)}\" class=\"link\">#{label}</a>"
       elsif escaped_label
@@ -487,6 +584,7 @@ module ReVIEW
         escape_html(url)
       end
     end
+    private :_inline_hyperlink
 
     def build_inline_ruby(escaped_word, escaped_yomi)  # compile_ruby()をベースに改造
       pre = I18n.t('ruby_prefix'); post = I18n.t('ruby_postfix')
@@ -503,6 +601,12 @@ module ReVIEW
     def build_noteref(chapter, label, caption)
       href = chapter ? "#{chapter.id}#{extname()}##{label}" : "##{label}"
       %Q`ノート「<a href="#{href}">#{escape(caption)}</a>」`
+    end
+
+    ## 数式を参照する
+    def build_eq(chapter, label, number)
+      s = "#{I18n.t('equation')}#{chapter.number}.#{number}"
+      "<a>#{escape(s)}</a>"
     end
 
   end

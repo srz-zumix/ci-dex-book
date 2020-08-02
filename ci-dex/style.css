@@ -497,9 +497,93 @@ em {
 /*
  *  Starter
  */
+h4, h5, h6 {
+  margin-top: 1.0em;
+}
+
+
 tt, code, pre, kbd {
-  /* see https://silight.hatenablog.jp/entry/2015/07/02/214601 */
-  font-family: monospace, serif;
+  font-family: Consolas,Monaco,Menlo,'Andale Mono','Ubuntu Mono',monospace;
+  white-space: pre;
+  word-break: normal;
+}
+
+pre.emlist, pre.source, pre.list {
+  background: #eeeeee;
+}
+div.code, div.caption-code, div.source-code, div.emlist-code, div.emlistnum-code, div.cmd-code {
+    margin: 1.5em 0;
+    padding: 0;
+}
+div.cmd-code > pre.list {
+  background: #111;
+  color: #fff;
+}
+
+ul, ol {
+  margin: 1.5em 0 1.5em 3em;
+}
+ol.ol-none {
+  list-style-type: none;
+}
+.li-mark {
+  display: inline-block;
+  width: 3em;
+  margin-left: -3.3em;
+  margin-right: 0.3em;
+  text-align: right;
+}
+
+div.footnote {
+  margin-left: 4em;
+}
+span.footnote-mark {
+  display: inline-block;
+  width: 3em;
+  margin-left: -3.2em;
+  margin-right: 0.2em;
+  text-align: right;
+}
+
+.caption {
+  font-size: 0.875em;
+}
+.caption:before {
+  content: '▼ ';
+  color: #999;
+}
+div.image > .caption:before {
+  content: '▲ ';
+}
+
+div.note {
+  margin: 3em 1em;
+  padding: 5px 10px;
+  border: dotted 4px #f96;
+  border-width: 4px 0;
+  background: #fff9f9;
+}
+div.note > h5 {
+  font-size: 1em;
+}
+
+em.lineno, em.linenowidth {
+  font-style: normal;
+  color: #999;
+}
+
+img.border-on {
+  border: solid 1px #ccc;
+}
+
+.file {
+  font-family: sans-serif;
+}
+.userinput {
+  text-decoration: underline;
+}
+.balloon {
+  color: #999;
 }
 .weak {
   color: #999;

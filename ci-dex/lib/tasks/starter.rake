@@ -5,13 +5,27 @@ WEBSERVER_PORT = 9000
 
 
 ##
+## 生成したファイルを削除
+##
+task :clean do
+  require 'yaml'
+  config = File.open("config.yml", 'r', encoding: 'utf-8') {|f| YAML.load(f) }
+  x = config['bookname']  or abort("ERROR: missing 'bookname' in config.yml")
+  files = [x+".pdf", x+"-pdf", x+".epub", x+"-epub", "webroot"]
+  files = files.select {|x| File.exist?(x) }
+  rm_rf files unless files.empty?
+end
+
+
+
+##
 ## Docker用のタスク。
 ##
 namespace :docker do
 
   docker_image = ENV['DOCKER_IMAGE']
   docker_image = "kauplan/review2.5" if docker_image.to_s.empty?
-  docker_opts  = "--rm -v $PWD:/work"
+  docker_opts  = "--rm -v $PWD:/work -w /work"
   docker_opts += ENV.keys().grep(/^STARTER_/).map {|k| " -e #{k}" }.join()
 
   desc "+ pull docker image for building PDF file"
@@ -20,8 +34,7 @@ namespace :docker do
   end
 
   docker_run = proc do |command, opt=nil|
-    cmd = "/bin/bash -c 'cd work; #{command}'"
-    sh "docker run #{docker_opts} #{opt} #{docker_image} #{cmd}"
+    sh "docker run #{docker_opts} #{opt} #{docker_image} #{command}"
   end
 
   desc "+ run 'rake pdf' on docker"

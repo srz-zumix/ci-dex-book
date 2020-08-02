@@ -289,13 +289,12 @@ texstyle: [reviewmacro, starter, mystyle, mytitlepage, mycolophon]
 #
 # LaTeX用のdocumentclassを指定する
 # texdocumentclass: ["jsbook", "uplatex,oneside"]
+# 用紙サイズとフォントサイズは config-starter.yml で指定するので、'a5j' や '9pt' などは指定しないこと
 texdocumentclass: ["jsbook",
-    #"dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openright" # B5 10pt 右起こし
-    #"dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openany"   # B5 10pt 両起こし
-    #"dvipdfmx,uplatex,papersize,twoside,a5j,9pt,openright"  # A5  9pt 右起こし
-    #"dvipdfmx,uplatex,papersize,twoside,a5j,9pt,openany"    # A5  9pt 両起こし
-    #"dvipdfmx,uplatex,papersize,oneside,a5j,10pt,openany"   # A5 10pt 両起こし（タブレット向け）
-    "dvipdfmx,uplatex,papersize,twoside,b5j,10pt,openany"
+    #"dvipdfmx,uplatex,papersize,twoside,openright" # 右起こし
+    #"dvipdfmx,uplatex,papersize,twoside,openany"   # 両起こし
+    #"dvipdfmx,uplatex,papersize,oneside,openany"   # 両起こし（タブレット向け）
+    "dvipdfmx,uplatex,papersize,twoside,openany"
 ]
 #
 # LaTeX用のコマンドを指定する
@@ -342,15 +341,18 @@ pdfmaker:
   # 表紙に配置し、書籍の影絵にも利用する画像ファイル。同人誌の印刷では一般的に、表紙は本文と別ファイルにするので、ここはnullにする。
   #coverimage: null
   ### Starterでは、表紙をPDFで用意してください。電子用PDFでのみ挿入されます。
-  ### ・デフォルトでは印刷用PDFが生成させるので挿入されません。
+  ### ・デフォルトでは印刷用PDFファイルが生成させるので挿入されません。
   ### ・config-starter.ymlで「target: ebook」を設定するか、または
-  ###   環境変数「STARTER_TARGET=ebook」を設定すると、電子用になり挿入されます。
-  # coverpdf_files: [cover_b5.pdf]  # PDFファイル名（複数指定可）（PNGやJPGはダメ）
-  # coverpdf_option: "offset=-2.4mm 2.4mm" # 必要に応じて微調整すること
+  ###   環境変数「STARTER_TARGET=ebook」を設定すると電子用になり、
+  ###   表紙PDFが挿入されます。
+  ### ・表紙用PDFファイルは images/ フォルダ直下に置いてください。
+  # coverpdf_files: [cover_a5.pdf]  # PDFファイル名（複数指定可）（PNGやJPGはダメ）
+  # backcoverpdf_files: []  # 裏表紙のPDFファイル名（複数指定可）（PNGやJPGはダメ）
+  # coverpdf_option: "offset=-2.3mm 2.3mm" # 必要に応じて微調整すること
   #
   # pdfmaker:階層を使うものはここまで
 
-## @chapref<>{} や @<hd>{} で、章(Chapter)や節(Section)へのリンクを作成
+## @<chapref>{} や @<hd>{} で、章(Chapter)や節(Section)へのリンクを作成
 ## （Re:VIEW の機能だがドキュメントには未記載？）
 chapterlink: true
 

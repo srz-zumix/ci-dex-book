@@ -50,3 +50,11 @@
 \newcommand{\reviewttb}[1]{\texttt{\textbf{#1}}}
 \newcommand{\reviewcode}[1]{\texttt{#1}}
 \newcommand{\reviewballoon}[1]{←{#1}}
+
+\newcommand{\reviewequationcaption}[1]{%
+  %\medskip{\small\noindent #1}%
+  \medskip%
+  \noindent%
+  {\gtfamily\sffamily#1}%
+}
+\newenvironment{reviewequationblock}{\needvspace{2\Cvs}}{}

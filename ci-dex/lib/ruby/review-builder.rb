@@ -396,9 +396,28 @@ module ReVIEW
       build_noteref(chapter, label, item.caption)
     end
 
+    ## 数式を参照する
+    def inline_eq(label)
+      begin
+        chapter, label = parse_reflabel(label)
+      rescue KeyError => ex
+        error "@<eq>{#{label}}: #{ex.message}"
+      end
+      begin
+        item = (chapter || @chapter).equation(label)
+      rescue KeyError => ex
+        error "@<eq>{#{label}}: equation not found."
+      end
+      build_eq(chapter || @chapter, label, item.number)
+    end
+
     protected
 
     def build_noteref(chapter, label, caption)
+      raise NotImplementedError.new("#{self.class.name}#build_noteref(): not implemented yet.")
+    end
+
+    def build_eq(chapter, label, caption)
       raise NotImplementedError.new("#{self.class.name}#build_noteref(): not implemented yet.")
     end
 
