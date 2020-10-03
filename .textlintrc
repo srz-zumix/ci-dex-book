@@ -1,0 +1,19 @@
+{
+  "plugins": {
+    "@textlint/markdown": {
+      "extensions": [".md"]
+    },
+    "review"
+  },
+  "rules": {
+    "preset-ja-technical-writing": {
+        "sentence-length": false
+    }
+  },
+  "filters": {
+      "allowlist": {
+          "allow": [
+          ]
+      }
+  }
+}
