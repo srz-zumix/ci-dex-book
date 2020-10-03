@@ -8,3 +8,4 @@ tmp/
 secret/
 *.lock
 *.bak
+node_modules/
