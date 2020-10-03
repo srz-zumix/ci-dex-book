@@ -106,22 +106,6 @@ stylesheet: ["style.css"]
 # 目次として抽出する見出しレベル
 toclevel: 3               # （部と）章と節と項（小節）を目次に載せる
 
-# 採番の設定。採番させたくない見出しには「==[nonum]」のようにnonum指定をする
-#
-# 本文でセクション番号を表示する見出しレベル
-# secnolevel: 2              # 章 (Chapter) と節 (Section) にだけ番号をつける
-secnolevel: 3             # 項 (Subsection) にも番号をつける
-
-# 以下のsecnolevelはまだ未実装。
-# 前付でセクション番号を表示する見出しレベル(未実装)
-# pre_secnolevel: 0
-#
-# 後付(付録)でセクション番号を表示する見出しレベル(未実装)
-# post_secnolevel: 1
-#
-# 部番号を表示する見出しレベル(未実装)
-# part_secnolevel: 1
-
 # 本文中に目次ページを作成するか。省略した場合はnull (作成しない)
 toc: true
 
