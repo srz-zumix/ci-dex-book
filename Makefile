@@ -1,2 +1,2 @@
 lint:
-	npx textlint ci-dex/
+	npx textlint -f unix ci-dex/contents/*.re

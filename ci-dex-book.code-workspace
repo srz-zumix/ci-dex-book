@@ -6,7 +6,12 @@
 	],
 	"settings": {
 		"textlint.configPath": ".textlintrc",
+		"textlint.trace": "verbose",
+		"editor.rulers": [
+			80,
+			120,
+			150
+		],
 		"textlint.targetPath": "ci-dex/contents/*.re",
-		"textlint.trace": "messages",
 	},
 }
