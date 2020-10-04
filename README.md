@@ -7,7 +7,7 @@
 ## Releases
 
 * 2020/03/07 [技術書典 応援祭](https://techbookfest.org/product/4931278088437760)
-  * [Booth](https://srz-zumix.booth.pm/items/1879985)
+  * Booth: [あつまれ CI サービス　タダではじめる継続的インテグレーション生活](https://srz-zumix.booth.pm/items/1879985)
 
 ## Build
 
