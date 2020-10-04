@@ -3,11 +3,13 @@
     "@textlint/markdown": {
       "extensions": [".md"]
     },
-    "review"
+    "review": {
+      "extensions": [".re"]
+    }
   },
   "rules": {
     "preset-ja-technical-writing": {
-        "sentence-length": false
+      "sentence-length": false
     },
     "preset-ja-spacing": {
       "ja-space-between-half-and-full-width": {
@@ -22,10 +24,10 @@
   },
   "filters": {
       "allowlist": {
-          "allow": [
-              "/(.|)[0-9]+(ヶ|か)月/",
-              "/(.|)[0-9,]+(分|つ|回|時)/",
-          ]
+        "allow": [
+          "/(.|)[0-9]+(ヶ|か)月/",
+          "/(.|)[0-9,]+(分|つ|回|時)/",
+        ]
       }
   }
 }

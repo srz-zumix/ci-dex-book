@@ -4,21 +4,9 @@
 			"path": "."
 		}
 	],
-	"settings": {},
-	"launch": {
-		"configurations": [
-			{
-				"type": "codexm-debug",
-				"request": "launch",
-				"name": "Sample CodeXM Checker Configuration",
-				"targetedSourceFiles": [
-					"/Users/takazumi.shirayanagi/.synopsys/desktop/cxm/sample/SampleSourceFile.js"
-				],
-				"cxmFiles": [
-					"/Users/takazumi.shirayanagi/.synopsys/desktop/cxm/sample/SampleChecker.cxm"
-				],
-				"buildCommand": ""
-			}
-		]
-	}
+	"settings": {
+		"textlint.configPath": ".textlintrc",
+		"textlint.targetPath": "ci-dex/contents/*.re",
+		"textlint.trace": "messages",
+	},
 }

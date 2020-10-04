@@ -57,3 +57,6 @@ indent_style = tab
 
 [*.re]
 indent_style = tab
+
+[.textlintrc]
+indent_size = 2
