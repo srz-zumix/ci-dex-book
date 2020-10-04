@@ -29,17 +29,3 @@
 #
 #end
 #
-
-require 'fileutils'
-require 'review'
-
-desc "clean root *.re"
-task :clean do
-    config = ReVIEW::Configure.values
-    loader = ReVIEW::YAMLLoader.new
-    config.deep_merge!(loader.load_file(config_file()))
-
-    rm_f Dir.glob('*.re'), :verbose=>false
-    FileUtils.rm_rf("#{config['bookname']}-pdf")
-    FileUtils.rm_rf("#{config['bookname']}-epub")
-end

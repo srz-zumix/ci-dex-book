@@ -125,6 +125,9 @@ module ReVIEW
     def inline_B(str)
       inline_strong(str)
     end
+    def on_inline_B(&b)  # nestable
+      on_inline_strong(&b)
+    end
 
     ## ハートマーク
     def inline_hearts(str)

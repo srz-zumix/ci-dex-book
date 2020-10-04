@@ -27,11 +27,17 @@ jobs:
           git submodule sync
           git submodule update
       # convert
-      - uses: docker://srzzumix/review-retrovert
+      - name: review-retrovert version
+        uses: docker://srzzumix/review-retrovert
+        with:
+          args: "version"
+      - name: review-retrovert
+        uses: docker://srzzumix/review-retrovert
         with:
           args: "convert ci-dex/config.yml ci-dex-r"
       # 印刷版
-      - uses: docker://srzzumix/review-retrovert
+      - name: pdf
+        uses: docker://srzzumix/review-retrovert
         with:
           entrypoint: bash
           args: -c "cd ci-dex-r; rake preproc pdf"

@@ -15,19 +15,99 @@ module ReVIEW
   class LATEXBuilder
 
     ## 章や節や項や目のタイトル
-    alias __original_headline headline
     def headline(level, label, caption)
-      return with_context(:headline) do
-        __original_headline(level, label, caption)
+      with_context(:headline) do
+        _, anchor = headline_prefix(level)
+        headname = _headline_name(level)     # 'chapter', 'section', 'subsection', ...
+        headstar = _headline_star(level)     # '*' or nil
+        blank unless @output.pos == 0
+        with_context(:caption) do
+          print macro("#{headname}#{headstar}", compile_inline(caption))
+          print "\n" unless level >= 5  # \paragraphと\subpararaphでは改行しない
+        end
+        if headstar && _headline_toc?(level)  # 番号はつかないけど目次には出す場合
+          ## starter-heading.sty を使っているときは \addcontentsline が必要ない
+          #puts "\\@ifundefined{Chapter}{\\addcontentsline{toc}{#{headname}}{#{compile_inline(caption)}}}{}"
+          puts "\\ifx\\Chapter\\undefined{\\addcontentsline{toc}{#{headname}}{#{compile_inline(caption)}}}\\fi"
+        end
+        if _headline_chapter?(level)
+          puts macro('label', chapter_label)
+        elsif level >= 5  # 段(Paragraph)と小段(Subparagraph)では
+          nil             # 何もしない、\labelもつけない
+        else
+          ## \Section最後と\Subsection最初の\addvspaceが効くように、
+          ## \lastskipをいったん保存し、\labelのあとで復元する。
+          puts "\\keeplastskip{"
+          puts "  \\label{#{sec_label(anchor)}}"
+          puts "  \\label{#{label}}" if label
+          puts "  \\par\\nobreak"
+          puts "}"
+        end
+      end
+    rescue
+      error "unknown level: #{level}"
+    end
+
+    private
+
+    def _headline_name(level)
+      return 'part' if @chapter.is_a?(ReVIEW::Book::Part)
+      return HEADLINE[level]  # 1: 'chapter', 2: 'section', ...
+    end
+
+    def _headline_star(level)
+      return '*' if level > @book.config['secnolevel']
+      return '*' if @chapter.number.to_s.empty? && level > 1
+      return nil
+    end
+
+    def _headline_toc?(level)
+      return level <= @book.config['toclevel'].to_i
+    end
+
+    def _headline_chapter?(level)
+      return level == 1
+    end
+
+    public
+
+    def nonum_begin(level, _label, caption)
+      blank unless @output.pos == 0
+      with_context(:headline) do
+        with_context(:caption) do
+          puts macro(HEADLINE[level] + '*', compile_inline(caption))
+          puts "\\ifx\\Chapter\\undefined"
+          puts macro('addcontentsline', 'toc', HEADLINE[level], compile_inline(caption))
+          puts "\\fi"
+        end
+      end
+    end
+
+    def notoc_begin(level, _label, caption)
+      blank unless @output.pos == 0
+      with_context(:headline) do
+        with_context(:caption) do
+          puts "\\ifx\\Chapter\\undefined"
+          puts macro(HEADLINE[level] + '*', compile_inline(caption))
+          puts "\\else"
+          puts macro(HEADLINE[level] + '[]', compile_inline(caption))
+          puts "\\fi"
+        end
       end
     end
 
     ## テーブルヘッダー
-    alias __original_table_header table_header
+    ## （TODO: 第3引数にpos=htbpを指定）
     def table_header(id, caption)
-      return with_context(:caption) do
-        __original_table_header(id, caption)
+      if caption.present?
+        @table_caption = true
+        star = id.present? ? '' : '*'
+        s = with_context(:caption) { compile_inline(caption) }
+        puts "\\begin{table}[h]%%#{id}"
+        puts "\\centering%"
+        puts macro("reviewtablecaption#{star}", s)
       end
+      puts macro('label', table_label(id)) if id.present?
     end
 
     ## 改行命令「\\」のあとに改行文字「\n」を置かない。
@@ -47,7 +127,8 @@ module ReVIEW
     ## つまり改行のつもりが改段落になってしまう。
     def inline_br(_str)
       #"\\\\\n"   # original
-      "\\\\{}"
+      #"\\\\{}"   # これだと後続行の先頭に1/4空白が入ってしまう
+      "\\\\[0pt]" # これなら後続行の先頭に1/4空白が入らない
     end
 
 
@@ -293,15 +374,33 @@ module ReVIEW
     end
 
     ## 章タイトルを独立したページに
-    def makechaptitlepage(lines, option)
+    def makechaptitlepage(option=nil)
       case option
       when nil, ""  ;
       when 'toc=section', 'toc=subsection' ;
-      when 'toc'
+      when 'toc', 'toc=on'
+        option = "toc=on"
       else
         raise ArgumentError.new("//makechaptitlepage[#{option}]: unknown option (expected 'toc=section' or 'toc=subsection').")
       end
       puts "\\makechaptitlepage{#{option}}"
+    end
+
+    ## 縦方向のスペースがなければ改ページ
+    def needvspace(builder_name, height)
+      if builder_name == 'latex'
+        puts "\\needvspace{#{height}}"
+      end
+    end
+
+    ## 段(Paragraph)の終わりにスペースを入れる
+    def paragraphend()
+      puts "\\ParagraphEnd"
+    end
+
+    ## 小段(Subparagraph)の終わりにスペースを入れる（あれば）
+    def subparagraphend()
+      puts "\\SubparagraphEnd"
     end
 
     ## 引用（複数段落に対応）
@@ -389,14 +488,10 @@ module ReVIEW
     ## 入れ子可能なブロック命令
 
     def on_minicolumn(type, caption, &b)
-      puts "\\begin{reviewminicolumn}\n"
-      if caption.present?
-        @doc_status[:caption] = true
-        puts "\\reviewminicolumntitle{#{compile_inline(caption)}}\n"
-        @doc_status[:caption] = nil
-      end
+      s = with_context(:caption) { compile_inline(caption) }
+      puts "\\begin{starter#{type}}{#{s}}"
       yield
-      puts "\\end{reviewminicolumn}\n"
+      puts "\\end{starter#{type}}\n"
     end
     protected :on_minicolumn
 
@@ -422,7 +517,69 @@ module ReVIEW
       puts "}\n"
     end
 
+    def texequation(lines, label=nil, caption=nil)
+      blank()
+      #
+      if label.present?
+        puts macro("begin", "reviewequationblock")
+        chap = get_chap()
+        if chap.nil?
+          key  = "format_number_header_without_chapter"
+          args = [@chapter.equation(label).number]
+        else
+          key  = "format_number_header"
+          args = [chap, @chapter.equation(label).number]
+        end
+        s1 = I18n.t("equation")
+        s2 = I18n.t(key, args)
+        s3 = I18n.t("caption_prefix")
+        s4 = compile_inline(caption)
+        puts macro("reviewequationcaption", "#{s1}#{s2}#{s3}#{s4}")
+        has_caption_line = true
+      elsif caption.present?
+        puts macro("begin", "reviewequationblock")
+        s3 = I18n.t("caption_prefix")
+        s4 = compile_inline(caption)
+        puts macro("reviewequationcaption", "#{s3}#{s4}")
+        has_caption_line = true
+      else
+        has_caption_line = false
+      end
+      #
+      puts macro("begin", "equation*")
+      lines.each do |line|
+        puts unescape_latex(line)
+      end
+      puts macro("end", "equation*")
+      #
+      if has_caption_line
+        puts macro("end", "reviewequationblock")
+      end
+      #
+      blank()
+    end
+
     #### インライン命令
+
+    ## ファイル名
+    def inline_file(str)
+      on_inline_file { escape(str) }
+    end
+    def on_inline_file
+      "\\starterfile{#{yield}}"
+    end
+
+    ## ユーザ入力
+    def inline_userinput(str)
+      on_inline_userinput { escape(str) }
+    end
+    def on_inline_userinput
+      if within_codeblock?()
+        "{\\starteruserinput{\\seqsplit{#{yield}}}}"
+      else
+        "\\starteruserinput{#{yield}}"
+      end
+    end
 
     ## 引数をそのまま表示
     ## 例：
@@ -569,11 +726,23 @@ module ReVIEW
     end
 
     def build_inline_href(url, escaped_label)  # compile_href()をベースに改造
+      flag_footnote = @book.config['starter']['linkurl_footnote']
+      return _inline_hyperlink(url, escaped_label, flag_footnote)
+    end
+
+    ## @<href>{} の代わり
+    def inline_hlink(str)
+      url, label = str.split(/, /, 2)
+      flag_footnote = @book.config['starter']['hyperlink_footnote']
+      return _inline_hyperlink(url, escape(label), flag_footnote)
+    end
+
+    def _inline_hyperlink(url, escaped_label, flag_footnote)
       if /\A[a-z]+:/ !~ url
         "\\ref{#{url}}"
       elsif ! escaped_label.present?
         "\\url{#{escape_url(url)}}"
-      elsif ! @book.config['starter']['linkurl_footnote']
+      elsif ! flag_footnote
         "\\href{#{escape_url(url)}}{#{escaped_label}}"
       elsif within_context?(:footnote)
         "#{escaped_label}(\\url{#{escape_url(url)}})"
@@ -581,6 +750,7 @@ module ReVIEW
         "#{escaped_label}\\footnote{\\url{#{escape_url(url)}}}"
       end
     end
+    private :_inline_hyperlink
 
     def build_inline_ruby(escaped_word, escaped_yomi)  # compile_ruby()をベースに改造
       "\\ruby{#{escaped_word}}{#{escaped_yomi}}"
@@ -598,6 +768,12 @@ module ReVIEW
     ## ノートを参照する
     def build_noteref(chapter, label, caption)
       "\\starternoteref{#{label}}{#{escape(caption)}}"
+    end
+
+    ## 数式を参照する
+    def build_eq(chapter, label, number)
+      #"\\reviewequationref{#{chapter.number}.#{number}}"
+      escape("#{I18n.t('equation')}#{chapter.number}.#{number}")
     end
 
   end

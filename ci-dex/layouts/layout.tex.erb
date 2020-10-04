@@ -18,8 +18,14 @@ else
   dvipdfmx_ = 'dvipdfmx,'
 end
 
+pagesize = @config['starter']['pagesize']  # A5 or B5
+fontsize = @config['starter']['fontsize']  # 9pt or 10pt
+docopts = [@documentclassoption]
+docopts << "#{pagesize.downcase}paper"  # a5paper or b5paper
+docopts << fontsize                     # 9pt or 10pt
+
 %>
-\documentclass[<%= @documentclassoption %>]{<%= @documentclass %>}
+\documentclass[<%= docopts.join(',') %>]{<%= @documentclass %>}
 % %% fixes to LaTeX2e
 % \usepackage{fix-cm}[2006/09/13 v1.1m]
 % \usepackage{fixltx2e}[2006/09/13 v1.1m]
@@ -192,11 +198,17 @@ end
   \medskip\small\begin{framed}\setlength{\baselineskip}{1.3zw}\begin{alltt}}{%
   \end{alltt}\end{framed}}
 
+%\newenvironment{reviewtable}[1]{%
+%  \begin{center}\small\setlength{\baselineskip}{1.2zw}
+%    \begin{tabular}{#1}}{%
+%    \end{tabular}
+%  \end{center}}
 \newenvironment{reviewtable}[1]{%
-  \begin{center}\small\setlength{\baselineskip}{1.2zw}
-    \begin{tabular}{#1}}{%
-    \end{tabular}
-  \end{center}}
+  \small\setlength{\baselineskip}{1.2zw}%
+  \begin{tabular}{#1}%
+}{%
+  \end{tabular}%
+}
 
 \newenvironment{reviewcolumn}{%
      \begin{framed}
@@ -272,7 +284,7 @@ end
 %%%% for jumoline.sty:
 %%\renewcommand{\reviewstrike}[1]{\Middleline{#1}}
 
-\newcommand{\reviewth}[1]{\textgt{#1}}
+\newcommand{\reviewth}[1]{{\gtfamily\sffamily\bfseries #1}}
 \newcommand{\reviewtitlefont}[0]{\usefont{T1}{phv}{b}{n}\gtfamily}
 \newcommand{\reviewmainfont}[0]{}
 \newcommand{\reviewcolophon}[0]{\clearpage}
@@ -320,6 +332,10 @@ end
   \fi
 }
 
+%% true between '\appendix' and ''
+\newif\if@appendix
+\@appendixfalse
+
 \makeatother
 
 <%- if @config["texstyle"] -%>
@@ -332,9 +348,34 @@ end
 \makeindex
 <%- end -%>
 
+<% if @config['secnolevel'] %>
+\setcounter{secnumdepth}{<%= @config['secnolevel'] - 1 %>}
+<% end %>
+
+
 \begin{document}
 
 \reviewmainfont
+
+<%-
+    ## 表紙用PDFファイルを読み込む
+    include_pdffiles = proc do |pdf_files|
+      if ENV['STARTER_CHAPTER'].to_s.empty?
+        target = ENV['STARTER_TARGET']; target = nil if target.to_s.empty?
+        target ||= (@config['starter'] || {})['target']
+        p = target == "ebook" ? '' : '%'
+        [pdf_files].flatten.compact.each do |pdf_file|
+ -%>
+  <%= p %>\includepdf[<%= @config["coverpdf_option"] %>]{./<%= @config["imagedir"] %>/<%= pdf_file %>}
+  <%= p %>\addtocounter{page}{-1}
+<%-
+        end
+      end
+    end
+ -%>
+<%- include_pdffiles.call(@config["coverpdf_files"]) -%>
+
+%
 
 <%- if @config["titlepage"] -%>
 %%%
@@ -356,13 +397,6 @@ end
     \includegraphics[<%= @coverimageoption%>]{./<%= @config["imagedir"] %>/<%= @config["coverimage"] %>}
   \end{center}
   \clearpage
-<%-     end -%>
-<%-     target = ENV['STARTER_TARGET']; target = nil if target.to_s.empty? -%>
-<%-     target ||= (@config['starter'] || {})['target'] -%>
-<%-     p = target == "ebook" ? '' : '%' -%>
-<%-     [@config["coverpdf_files"]].flatten.compact.each do |pdf_file| -%>
-  <%= p %>\includepdf[<%= @config["coverpdf_option"] %>]{./<%= @config["imagedir"] %>/<%= pdf_file %>}
-  <%= p %>\makeatletter\advance\c@page by -1\relax\makeatother
 <%-     end -%>
   \ifdefined\mytitlepage %%%%%%%%%%
     \mytitlepage   % defined in 'sty/mytitlepage.sty'
@@ -420,7 +454,9 @@ end
 <%= @input_files["CHAPS"] %>
 %\renewcommand{\chaptermark}[1]{\markboth{\appendixname\thechapter~#1}{}}
 \reviewappendix
+\makeatletter\@appendixtrue\makeatother
 <%= @input_files["APPENDIX"] %>
+\makeatletter\@appendixfalse\makeatother
 
 %% backmatter begins
 <%- if @input_files["POSTDEF"].present? # or @config["colophon"] -%>
@@ -503,5 +539,8 @@ end
 <%- if @config["backcover"] -%>
 <%= @custom_backcoverpage %>
 <%- end -%>
+
+<%- ## 裏表紙用PDFファイルを読み込む -%>
+<%- include_pdffiles.call(@config["backcoverpdf_files"]) -%>
 
 \end{document}

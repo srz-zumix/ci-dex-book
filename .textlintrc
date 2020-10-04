@@ -8,11 +8,23 @@
   "rules": {
     "preset-ja-technical-writing": {
         "sentence-length": false
+    },
+    "preset-ja-spacing": {
+      "ja-space-between-half-and-full-width": {
+        space: "always",
+        exceptPunctuation: true,
+      },
+      "ja-space-around-code": {
+        "before": true,
+        "after": true
+      }
     }
   },
   "filters": {
       "allowlist": {
           "allow": [
+              "/(.|)[0-9]+(ヶ|か)月/",
+              "/(.|)[0-9,]+(分|つ|回|時)/",
           ]
       }
   }

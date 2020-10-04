@@ -20,15 +20,24 @@ module ReVIEW
     defblock :terminal, 0..3     ## ターミナル
     defblock :sideimage, 2..3    ## テキストの横に画像を表示
     defblock :abstract, 0        ## 章の概要
-    defblock :makechaptitlepage, 0..1, true ## 章タイトルを独立したページに
     defblock :list, 0..3         ## （上書き）
     defblock :listnum, 0..3      ## （上書き）
     defblock :note, 0..2         ## （上書き）
+    defblock :texequation, 0..2  ## （上書き）
+
+    defsingle :makechaptitlepage, 0..1  ## 章扉をつける
+    defsingle :needvspace, 2     ## 縦方向のスペースがなければ改ページ
+    defsingle :paragraphend, 0   ## 段の終わりにスペースを入れる
+    defsingle :subparagraphend, 0## 小段の終わりにスペースを入れる（あれば）
 
     ## インライン命令
     definline :balloon           ## コード内でのふきだし説明（Re:VIEW3から追加）
+    definline :eq                ## 数式を参照
     definline :secref            ## 節(Section)や項(Subsection)を参照
     definline :noteref           ## ノートを参照
+    definline :hlink             ## @<href>{}の代わり
+    definline :file              ## ファイル名
+    definline :userinput         ## ユーザ入力
     definline :nop               ## 引数をそのまま表示 (No Operation)
     definline :letitgo           ## （nopのエイリアス名）
     definline :foldhere          ## 折り返し箇所を手動で指定
@@ -458,6 +467,14 @@ module ReVIEW
   end
 
 
+  ## 数式（//texequation）のラベル用
+  class Book::EquationIndex < Book::Index
+    def self.item_type
+      '(texequation)'
+    end
+  end
+
+
   module Book::Compilable
 
     def note(id)
@@ -467,6 +484,15 @@ module ReVIEW
     def note_index
       @note_index ||= Book::NoteIndex.parse(lines())
       @note_index
+    end
+
+    def equation(id)
+      equation_index()[id]
+    end
+
+    def equation_index
+      @equation_index ||= Book::EquationIndex.parse(lines)
+      @equation_index
     end
 
     def content   # override
