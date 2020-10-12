@@ -3,7 +3,7 @@
     "@textlint/markdown": {
       "extensions": [".md"]
     },
-    "review": {
+    "review-starter": {
       "extensions": [".re"]
     }
   },
