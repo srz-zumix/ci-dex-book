@@ -26,7 +26,7 @@ starter:
   ## 本文幅
   ## ・A5 9ptなら「38zw」か「39zw」、A5 10ptなら「35zw」を推奨
   ## ・B5 10ptなら「44zw」か「45zw」、B5 11ptなら「41zw」を推奨
-  textwidth: 44zw          # 全角の文字数で指定
+  textwidth: 45zw          # 全角の文字数で指定
 
   ## 本文のフォント（注：実験的）
   ## （Notoフォントが前提なので、Docker環境が必要。MacTeXでは使わないこと）
@@ -37,7 +37,7 @@ starter:
 
   ## 章 (Chapter) タイトルの装飾
   ## （none: なし、underline: 下線、boldlines: 上下に太線）
-  chapter_decoration: boldlines
+  chapter_decoration: underline
 
   ## 章 (Chapter) タイトルの左寄せ/右寄せ/中央揃え
   ## （left: 左寄せ、right: 右寄せ、center: 中央揃え）
@@ -73,7 +73,7 @@ starter:
   ## キャプション直後での改ページを防ぐために、最低限必要とする高さ
   ## （もしキャプション直後での改ページが発生するなら値を増やす。
   ##   もし十分なスペースがあるのに改ページされるなら値を減らす。）
-  caption_needspace: 4.8zh        # 全角文字4.8個分の高さ（実験で得た境界値）
+  caption_needspace: 4.6zh        # 全角文字4.6個分の高さ（実験で得た境界値）
 
   ## プログラム（//list）のフォントサイズ
   program_fontsize: small  # 'normal' or 'small'

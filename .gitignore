@@ -1,5 +1,6 @@
 *.zip
 *.pdf
+*.epub
 !images/*.pdf
 ci-dex/ci-dex-pdf/
 ci-dex/ci-dex-epub/

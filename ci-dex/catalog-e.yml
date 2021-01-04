@@ -30,10 +30,12 @@ CHAPS:
     - c199-vs-badge-e.re
 
 APPENDIX:
-  - c200-appendix.re
+  - c200-appendix-code.re
+  - c299-appendix-diff.re
   # - c201-appendix-code.re
 
 POSTDEF:
+  - c300-postdef.re
 
 ##
 ## ■Tips
