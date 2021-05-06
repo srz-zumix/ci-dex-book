@@ -42,7 +42,7 @@ additional:
   # 詳しくはこのページを参照：
   # https://esa-pages.io/p/sharing/13039/posts/115/7fbe936149a836eac678.html#奥付の記載
   - key:     発行者   # サークル名ではなく個人名（ペンネーム可）
-    value:   @srz_zumix
+    value:   "@srz_zumix"
   - key:     連絡先   # メールアドレス推奨
     value:   zumix.cpp@gmail.com
     ### 連絡先の例：

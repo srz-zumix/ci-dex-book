@@ -35,7 +35,7 @@ starter:
   fontweight_ja: normal    # (日本語) normal: 通常, light: 細字
   fontweight_en: normal    # (英数字) normal: 通常, light: 細字
 
-   ## 表紙や大扉（タイトルページ）や奥付のページのPDFファイルを指定
+  ## 表紙や大扉（タイトルページ）や奥付のページのPDFファイルを指定
   ## ・PDFファイルは `images/` フォルダに置くこと。
   ## ・PDFは1ファイルにつき1ページであること。もし複数ページのPDFを指定する場合は
   ##   取り込むページ番号を `cover.pdf<2>` のように指定すること（実験的機能）。
