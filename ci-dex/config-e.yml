@@ -233,13 +233,11 @@ pdfmaker:
   #
   # 表紙に配置し、書籍の影絵にも利用する画像ファイル。同人誌の印刷では一般的に、表紙は本文と別ファイルにするので、ここはnullにする。
   #coverimage: null
-  ### Starterでは、表紙をPDFで用意してください。電子用PDFでのみ挿入されます。
-  ### ・デフォルトでは印刷用PDFが生成させるので挿入されません。
-  ### ・config-starter.ymlで「target: ebook」を設定するか、または
-  ###   環境変数「STARTER_TARGET=ebook」を設定すると、電子用になり挿入されます。
-  # coverpdf_files: [cover_b5.pdf]  # PDFファイル名（複数指定可）（PNGやJPGはダメ）
-  # coverpdf_option: "offset=-2.4mm 2.4mm" # 必要に応じて微調整すること
-  coverpdf_files: [cover-e.pdf, cover4-e.pdf]  # PDFファイル名（複数可）
-
+  #
+  ### 【注意】次の設定項目は config-starter.yml に移動し、項目名も変わりました。
+  ###   ・coverpdf_files:     => frontcover_pdffile:
+  ###   ・backcoverpdf_files: => backcover_pdffile:
+  ###   ・coverpdf_option:    => includepdf_option:
+  #
   #
   # pdfmaker:階層を使うものはここまで
