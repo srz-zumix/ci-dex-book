@@ -61,7 +61,7 @@ ruby 2.3.7p456 (2018-03-28 revision 63024) [universal.x86_64-darwin18]
 
 実際の出力結果は上と少し違うはずですが、だいたい合っていればOKです。
 
-また、必要なライブラリをインストールするために、以下のコマンドも実行してください（各行の先頭にある「@<code>{$ }」は入力せず、それ以降のコマンドを入力してください）。
+また必要なライブラリをインストールするために、以下のコマンドも実行してください（各行の先頭にある「@<code>{$ }」は入力せず、それ以降のコマンドを入力してください）。
 
 //terminal[][必要なライブラリをインストール]{
 $ @<userinput>{gem install review --version=2.5}
@@ -83,7 +83,7 @@ MacTeXはサイズが大きい（約4GB）ので、本家ではなく以下の�
 
 ダウンロードができたら、ダブルクリックしてインストールしてください。
 
-インストールしたら、Terminal.appで次のコマンドを入力し、動作を確認してください（各行の先頭にある「@<code>{$ }」は入力せず、それ以降のコマンドを入力してください）。
+インストールしたらTerminal.appで次のコマンドを入力し、動作を確認してください（各行の先頭にある「@<code>{$ }」は入力せず、それ以降のコマンドを入力してください）。
 
 //terminal[][MacTeXのインストールができたことを確認]{
 $ @<userinput>{which uplatex}     @<balloon>{下線が引かれたコマンドだけを入力すること}
@@ -121,7 +121,7 @@ C:\Users\yourname> @<userinput>{ruby --version}  @<balloon>{「ruby --version」
 ruby 2.6.6-1 [x64-mingw32]
 //}
 
-実際の出力結果は上と少し違うと思いますが、だいたい合っていればOKです。
+実際の出力結果は上と少し違うでしょうが、だいたい合っていればOKです。
 
 また以下のコマンドを実行し、必要なライブラリをインストールします。
 
@@ -147,7 +147,7 @@ e-upTeX 3.14159265-p3.7.1-u1.22-161114-2.6 (utf8.uptex) (TeX Live 2020/W32TeX)
 ...（以下省略）...
 //}
 
-実際の出力結果は上と少し違うと思いますが、だいたい合っていればOKです。
+実際の出力結果は上と少し違うでしょうが、だいたい合っていればOKです。
 
 
 == プロジェクトを作成
@@ -267,6 +267,8 @@ C:\Users\yourname\mybook> @<userinput>{dir *.pdf} @<balloon>{PDFファイルが�
 
  * エラーが発生したときの対処法は@<secref>{02-tutorial|subsec-compileerror}で簡単に説明しています。
    必ず読んでください。
- * ePubファイルを生成するときは「@<code>{rake epub}」または「@<code>{rake docker:epub}」、HTMLファイルを生成するときは「@<code>{rake web}」または「@<code>{rake docker:epub}」を実行してください。
+ * HTMLファイルを生成するときは「@<code>{rake web}」（または「@<code>{rake docker:web}」）を実行してください。
+ * ePubファイルを生成するときは「@<code>{rake epub}」（または「@<code>{rake docker:epub}」）を実行してください。
+ * Markdownファイルを生成するときは「@<code>{rake markdown}」（または「@<code>{rake docker:markdown}」）を実行してください。
  * Starterでは「@<code>{review-pdfmaker}」コマンドや「@<code>{review-epubmaker}」コマンドが使えません（実行はできますが望ましい結果にはなりません）。
    必ず「@<code>{rake pdf}」や「@<code>{rake epub}」を使ってください。

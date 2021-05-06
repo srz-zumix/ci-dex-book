@@ -1,0 +1,8 @@
+.DS_Store
+*~
+*.bak
+*.yml.orig
+#*.erb.orig
+tmp/*
+mybook-pdf/*
+mybook-md/*

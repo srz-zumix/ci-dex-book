@@ -23,6 +23,18 @@ def config_file()
   return conf
 end
 
+def setup_envvars()
+  {
+    'c' => 'STARTER_CHAPTER',
+    't' => 'STARTER_TARGET',
+    'n' => 'STARTER_COMPILETIMES',
+    'd' => 'STARTER_DRAFT',
+  }.each do |char, name|
+    v = ENV.delete(char)
+    ENV[name] = v if v && !v.empty?
+  end
+end
+
 task default: :html_all
 
 desc 'build html (Usage: rake build re=target.re)'
@@ -42,7 +54,7 @@ end
 desc 'preproc all'
 task :preproc => :prepare do
   Dir.glob('*.re').each do |file|
-    sh "review-preproc --replace --tabwidth=0 #{file}"
+    sh "review-preproc --replace #{file}"
   end
 end
 
@@ -54,6 +66,8 @@ task :pdf => :prepare do
   require 'review'
   #require 'review/pdfmaker'
   require './lib/ruby/review-pdfmaker'
+  #
+  setup_envvars()  # ex: `c=01-install` => ENV['STARTER_CHAPTER']='01-install'
   #
   FileUtils.rm_rf [BOOK_PDF, BOOK, BOOK + '-pdf']
   begin
