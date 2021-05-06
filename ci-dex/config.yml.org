@@ -15,19 +15,41 @@ review_version: 2.0
 # その値がB.ymlよりも優先される。
 # 同様にA.yml、B.yml内でさらにinherit:パラメータを使うこともできる。
 # inherit: ["A.yml", "B.yml"]
+inherit: ["config-starter.yml"]
 
 # ブック名(ファイル名になるもの。ASCII範囲の文字を使用)
-bookname: book
+bookname: mybook
 # 記述言語。省略した場合はja
 language: ja
 
 # 書名
 # 読みを入れる例 booktitle: {name: "Re:VIEW EPUBサンプル", file-as: "リビューイーパブサンプル"}
-booktitle: Re:VIEWサンプル書籍
+# （タイトルやサブタイトルが長い場合は、好みの箇所に改行を入れてください。）
+booktitle: |-
+  はじめてのXXX入門
+subtitle: |-
+  概念と基本操作を2時間でマスター！
 
 # 著者名。「, 」で区切って複数指定できる
 # 読みを入れる例 aut: [{name: "青木峰郎", file-as: "アオキミネロウ"}, {name: "武藤健志", file-as: "ムトウケンシ"}, {name: "高橋征義", file-as: "タカハシマサヨシ"}, {name: "角征典", file-as: "カドマサノリ"}]
-aut: ["青木峰郎", "武藤健志", "高橋征義", "角征典"]
+aut:
+  - name:    カウプラン機関極東支部
+    file-as: カウプランキカンキョクトウシブ
+
+# (Starter拡張) 奥付に載せるデータ。現在はPDFのみ対応。
+additional:
+  # 技書博では発行責任者とその連絡先が必須になった。
+  # 詳しくはこのページを参照：
+  # https://esa-pages.io/p/sharing/13039/posts/115/7fbe936149a836eac678.html#奥付の記載
+  - key:     発行者   # サークル名ではなく個人名（ペンネーム可）
+    value:   
+  - key:     連絡先   # メールアドレス推奨
+    value:
+    ### 連絡先の例：
+    #value:
+    #  - xxxxx@example.com          # メールアドレス
+    #  - https://www.example.com/   # WebサイトURL
+    #  - "@xxxxx"                   # Twitterアカウント（先頭に '@' をつけること）
 
 # 以下はオプション
 # 以下はオプション(autと同じように配列書式で複数指定可能)。
@@ -58,6 +80,7 @@ aut: ["青木峰郎", "武藤健志", "高橋征義", "角征典"]
 # a-pht, pht: 撮影責任者
 # a-pbl, pbl: 出版社（発行所）
 # a-prt, prt: 印刷所
+prt: ○○印刷所
 # a-red, red: 項目の枠組起草者
 # a-rev, rev: 評論者
 # a-spn, spn: 援助者
@@ -66,14 +89,18 @@ aut: ["青木峰郎", "武藤健志", "高橋征義", "角征典"]
 # a-trl, trl: 翻訳者
 
 # 刊行日(省略した場合は実行時の日付)
-date: 2018-02-17
+date: 2020-02-29
 # 発行年月。YYYY-MM-DD形式による配列指定。省略した場合はdateを使用する
 # 複数指定する場合は次のように記述する
 # [["初版第1刷の日付", "初版第2刷の日付"], ["第2版第1刷の日付"]]
 # 日付の後ろを空白文字で区切り、任意の文字列を置くことも可能。
-history: [["2018-02-17"]]
+history:
+  - # 初版
+    - 2020-02-29 ver 1.0 （技術書典11）
+# [experimental] 新刊を頒布したイベント名（例：「技術書典6（2019年春）新刊」）
+pubevent_name: 技術書典11（2021年春）新刊
 # 権利表記(配列で複数指定可)
-# rights: (C) 2016 Re:VIEW Developers
+rights: (C) 2020 カウプラン機関極東支部
 # description: 説明
 # subject: 短い説明用タグ(配列で複数指定可)
 # type: 書籍のカテゴリーなど(配列で複数指定可)
@@ -83,7 +110,7 @@ history: [["2018-02-17"]]
 # coverage: 内容の範囲や領域(配列で複数指定可)
 
 # デバッグフラグ。nullでないときには一時ファイルをカレントディレクトリに作成し、削除もしない
-debug: null
+debug: true
 
 # 固有IDに使用するドメイン。指定しない場合には、時刻に基づくランダムUUIDが入る
 # urnid: urn:uid:http://example.com/book-title/
@@ -104,12 +131,13 @@ stylesheet: ["style.css"]
 # htmlversion: 4
 
 # 目次として抽出する見出しレベル
-toclevel: 3
+toclevel: 3               # （部と）章と節と項（小節）を目次に載せる
 
 # 採番の設定。採番させたくない見出しには「==[nonum]」のようにnonum指定をする
 #
 # 本文でセクション番号を表示する見出しレベル
-secnolevel: 2
+secnolevel: 2              # 章 (Chapter) と節 (Section) にだけ番号をつける
+#secnolevel: 3             # 項 (Subsection) にも番号をつける
 
 # 以下のsecnolevelはまだ未実装。
 # 前付でセクション番号を表示する見出しレベル(未実装)
@@ -122,7 +150,7 @@ secnolevel: 2
 # part_secnolevel: 1
 
 # 本文中に目次ページを作成するか。省略した場合はnull (作成しない)
-# toc: true
+toc: true
 
 # EPUB2標準の目次(NCX)以外に物理目次ファイルを作成するか。省略した場合はnull (作成しない)
 # ePUB3においてはこの設定によらず必ず作成される
@@ -132,10 +160,10 @@ secnolevel: 2
 # cover: null
 #
 # 表紙に配置し、書籍の影絵にも利用する画像ファイル。省略した場合はnull (画像を使わない)。画像ディレクトリ内に置いてもディレクトリ名は不要(例: cover.jpg)
-coverimage: cover.jpg
+#coverimage: cover.jpg
 #
 # 表紙の後に大扉ページを作成するか。省略した場合はtrue (作成する)
-# titlepage: true
+titlepage: true
 #
 # 自動生成される大扉ページを上書きするファイル。ファイル名を指定すると大扉として入る (PDFMaker向けにはLaTeXソース断片、EPUBMaker向けにはHTMLファイル)
 # titlefile: null
@@ -179,6 +207,13 @@ coverimage: cover.jpg
 
 # カタログファイル名を指定する
 # catalogfile: catalog.yml
+
+# reファイルを格納するディレクトリ。デフォルト値は null。
+# 値にたとえば「contents」を指定すると、reファイルはすべて「contents」
+# ディレクトリに置かなければならず、カレントディレクトリには一切置いては
+# ならない。
+# contentdir: null
+contentdir: contents
 
 # 1ページの行数文字数と1kbごとのページ数を用紙サイズで指定する(A5 or B5)。
 # page_metric: A5
@@ -276,22 +311,30 @@ epubmaker:
   # epubmaker:階層を使うものはここまで
 
 # LaTeX用のスタイルファイル(styディレクトリ以下に置くこと)
-texstyle: reviewmacro
+texstyle: [reviewmacro, starter, mytitlepage, mycolophon, mystyle]
 #
 # LaTeX用のdocumentclassを指定する
 # texdocumentclass: ["jsbook", "uplatex,oneside"]
+# 用紙サイズとフォントサイズは config-starter.yml で指定するので、'a5j' や '9pt' などは指定しないこと
+texdocumentclass: ["jsbook",
+    #"dvipdfmx,uplatex,papersize,twoside,openright" # 右起こし
+    #"dvipdfmx,uplatex,papersize,twoside,openany"   # 両起こし
+    #"dvipdfmx,uplatex,papersize,oneside,openany"   # 両起こし（タブレット向け）
+    "dvipdfmx,uplatex,papersize,twoside,openright"
+]
 #
 # LaTeX用のコマンドを指定する
-# texcommand: "uplatex"
+texcommand: uplatex
 #
 # LaTeXのコマンドに渡すオプションを指定する
 # texoptions: null
+texoptions: "-halt-on-error -file-line-error"  # エラー時にインタラクティブモードにしない、エラー箇所はファイル名つきで表示
 #
 # LaTeX用のdvi変換コマンドを指定する(dvipdfmx)
-# dvicommand: "dvipdfmx"
+dvicommand: dvipdfmx
 #
 # LaTeX用のdvi変換コマンドのオプションを指定する
-# dvioptions: "-d 5"
+dvioptions: "-q -d 5 -z 3"  # -z 9 だと画像を最大圧縮する（ただし時間がかかる）
 
 # 以下のパラメータを有効にするときには、
 # pdfmaker:
@@ -305,6 +348,7 @@ pdfmaker:
   # TeXコンパイル前に実行するプログラム。変換後のTeXソースを調整したいときに使用する。
   # 渡される引数1=作業用展開ディレクトリ、引数2=呼び出しを実行したディレクトリ
   # hook_beforetexcompile: null
+  hook_beforetexcompile: [lib/hooks/beforetexcompile.rb]
   #
   # TeXコンパイル後に実行するプログラム。索引作業をして再度コンパイルしたいときなどに使用する。
   # 渡される引数1=作業用展開ディレクトリ、引数2=呼び出しを実行したディレクトリ
@@ -319,5 +363,26 @@ pdfmaker:
   #
   # 奥付を作成するか。trueを指定するとデフォルトの奥付、ファイル名を指定するとそれがcolophon.htmlとしてコピーされる
   colophon: true
+  #
+  # 表紙に配置し、書籍の影絵にも利用する画像ファイル。同人誌の印刷では一般的に、表紙は本文と別ファイルにするので、ここはnullにする。
+  #coverimage: null
+  #
+  ### 【注意】次の設定項目は config-starter.yml に移動し、項目名も変わりました。
+  ###   ・coverpdf_files:     => frontcover_pdffile:
+  ###   ・backcoverpdf_files: => backcover_pdffile:
+  ###   ・coverpdf_option:    => includepdf_option:
+  #
   # pdfmaker:階層を使うものはここまで
 
+## @<chapref>{} や @<hd>{} で、章(Chapter)や節(Section)へのリンクを作成
+## （Re:VIEW の機能だがドキュメントには未記載？）
+chapterlink: true
+
+
+## Webページ用の設定
+webmaker:
+  htmlext: html        # HTMLファイルの拡張子
+  htmlversion: 5       # HTMLのバージョン
+  stylesheet:          # 「css」フォルダ内のCSSファイル
+    - normalize.css
+    - webstyle.css
