@@ -41,9 +41,9 @@ starter:
   ##   取り込むページ番号を `cover.pdf<2>` のように指定すること（実験的機能）。
   ## ・ファイル名の後ろに `*` をつけると、上下左右の塗り足し部分が除かれる。
   ## ・必要なら配列を使って複数ファイルを指定可能（例： [a.pdf, b.pdf]）。
-  frontcover_pdffile: cover_a5.pdf   # 表表紙（電子用のみ、印刷用にはつかない）
+  frontcover_pdffile: cover-e.pdf    # 表表紙（電子用のみ、印刷用にはつかない）
   #frontcover_pdffile: cover.pdf<2>* # （ページ番号を指定し、塗り足しを除く場合）
-  backcover_pdffile:  null           # 裏表紙（電子用のみ、印刷用にはつかない）
+  backcover_pdffile:  cover4-e.pdf   # 裏表紙（電子用のみ、印刷用にはつかない）
   titlepage_pdffile:  null           # 大扉（印刷用・電子用どちらにもつく）
   colophon_pdffile:   null           # 奥付（印刷用・電子用どちらにもつく）
   includepdf_option:  null           # PDFの位置調整が必要な場合
