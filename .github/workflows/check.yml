@@ -11,10 +11,10 @@ jobs:
     steps:
       - uses: actions/checkout@v2
         with:
-          token: ${{ secrets.GitHub_PAT }}
+          token: ${{ secrets.PAT_GITHUB }}
       - name: Checkout submodules
         env:
-          GIT_TOKEN: ${{ secrets.GitHub_PAT }}
+          GIT_TOKEN: ${{ secrets.PAT_GITHUB }}
         run: |
           sed -i "s|git@github.com:srz-zumix/ci-dex-review-contents.git|https://srz-zumix:${GIT_TOKEN}@github.com/srz-zumix/ci-dex-review-contents.git|g" .gitmodules
           git submodule init
