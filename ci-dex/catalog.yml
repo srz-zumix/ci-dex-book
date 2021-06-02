@@ -4,6 +4,7 @@ PREDEF:
 CHAPS:
   - 無料で使える CI サービス紹介:
     - c001-free-ci.re
+    - c002-history.re
     - c010-appveyor.re
     - c010-azure-pipelines.re
     - c010-bitrise.re
@@ -14,6 +15,7 @@ CHAPS:
     - c010-codeship.re
     - c010-drone.re
     - c010-github-actions.re
+    - c010-jfrog-pipelines.re
     - c010-semaphore.re
     - c010-shippable.re
     - c010-travis-ci.re
@@ -23,6 +25,7 @@ CHAPS:
     - c101-vs-env.re
     - c102-vs-specs.re
     - c103-vs-parallel.re
+    - c103-vs-dockerhub.re
     - c110-vs-yaml.re
     - c120-vs-comment-command.re
     - c150-vs-share.re
