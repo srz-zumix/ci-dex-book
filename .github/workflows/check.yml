@@ -24,6 +24,7 @@ jobs:
         with:
           path: ./ci-dex/contents/images
           formats: "JPEG"
+          longside: 0
       # - name: Syntax
       #   run: |
       #     cd ./ci-dex/contents
