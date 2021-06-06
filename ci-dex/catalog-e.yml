@@ -14,6 +14,7 @@ CHAPS:
     - c010-codeship.re
     - c010-drone.re
     - c010-github-actions.re
+    - c010-jfrog-pipelines.re
     - c010-semaphore.re
     - c010-shippable.re
     - c010-travis-ci.re
