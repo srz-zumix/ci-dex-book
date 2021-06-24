@@ -24,7 +24,7 @@ CHAPS:
   - 無料で使える CI サービス比較:
     - c101-vs-env.re
     - c102-vs-specs.re
-    - c103-vs-parallel.re
+    - c103-vs-concurrency.re
     - c104-vs-dockerhub.re
     - c110-vs-yaml.re
     - c120-vs-comment-command.re
