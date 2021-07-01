@@ -2,4 +2,4 @@ retrovert:
   # ソースコードハイライトを利用する (rouge,pygmentsには外部gemが必要)
   highlight:
     # html: "rouge"
-    # latex: "listings"
+    latex: "pygments"

@@ -205,8 +205,8 @@ imagedir: contents/images
 
 # ソースコードハイライトを利用する (rouge,pygmentsには外部gemが必要)
 # highlight:
-#   html: "rouge"
-#   latex: "listings"
+#   # html: "rouge"
+#   latex: "pygments"
 
 # カタログファイル名を指定する
 # catalogfile: catalog.yml
