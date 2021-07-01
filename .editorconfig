@@ -60,3 +60,6 @@ indent_style = tab
 
 [.textlintrc]
 indent_size = 2
+
+[*.{terms,words}]
+indent_style = tab
