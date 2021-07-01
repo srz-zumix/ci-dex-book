@@ -107,8 +107,10 @@
   \chaptermark{#2}%               % ページヘッダに章タイトルを設定
 }
 \newcommand{\Chapter@topmargin}[1]{%
-  \if@openleft\cleardoublepage\else%
-  \if@openright\cleardoublepage\else\clearpage\fi\fi%
+  \if@Chapter@clearpage@%
+    \if@openleft\cleardoublepage\else%
+    \if@openright\cleardoublepage\else\clearpage\fi\fi%
+  \fi%
   \plainifnotempty% 元: \thispagestyle{plain}%
   \global\@topnum\z@%
  %\vspace*{2.0\Cvs}%     % (jsbook.cls) 2\Cvs
@@ -151,6 +153,8 @@
   \ifstreq{\@align}{center}\centering\fi    % 中央寄せ
 }
 \newif\if@FirstSectionPerChapter@           % 章における最初の節ならtrue
+\newif\if@Chapter@clearpage@                % trueなら章タイトル直前で改ページ
+\@Chapter@clearpage@true
 
 %%% 章タイトルのカスタマイズ：下に細い下線
 \iffalse
@@ -547,3 +551,11 @@
 \def\subsubsection{\Subsubsection}
 \def\paragraph{\Paragraph}
 \def\subparagraph{\Subparagraph}
+
+
+%%% 索引ページのタイトルデザインを変更
+\renewcommand{\@makeschapterhead}[1]{%
+  \@Chapter@clearpage@false%  % もとの \@makeschapterhead は改ページしないので、それに倣う
+  \Chapter*[]{#1}%            % まえがきや目次と同じタイトルデザインを使う
+  \@Chapter@clearpage@true%
+}

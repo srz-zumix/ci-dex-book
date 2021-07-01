@@ -601,6 +601,8 @@ module ReVIEW
     definline :secref            ## 節(Section)や項(Subsection)を参照
     definline :noteref           ## ノートを参照
     definline :hlink             ## @<href>{}の代わり
+    definline :term              ## @<idx>{}かつゴシック体
+    definline :termnoidx         ## ゴシック体にするだけで索引には登録しない
     definline :file              ## ファイル名
     definline :userinput         ## ユーザ入力
     definline :nop               ## 引数をそのまま表示 (No Operation)
@@ -617,6 +619,9 @@ module ReVIEW
     definline :xxlarge           ## 文字サイズをもっともっと大きく
     definline :xstrong           ## 文字を大きくした@<strong>{}
     definline :xxstrong          ## 文字をもっと大きくした@<strong>{}
+    definline :w                 ## キーに対応した単語に展開
+    definline :wb                ## キーに対応した単語に展開、かつ太字で表示
+    definline :W                 ## キーに対応した単語に展開、かつ強調表示
 
     private
 
@@ -1025,7 +1030,7 @@ module ReVIEW
       return IGNORE_NESTED_INLINE_COMMANDS.include?(tag_name)
     end
 
-    IGNORE_NESTED_INLINE_COMMANDS = Set.new(['m', 'raw', 'embed'])
+    IGNORE_NESTED_INLINE_COMMANDS = Set.new(['m', 'raw', 'embed', 'idx', 'hidx', 'term'])
 
   end
 

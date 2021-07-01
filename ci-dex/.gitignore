@@ -3,6 +3,7 @@
 *.bak
 *.yml.orig
 #*.erb.orig
+rubygems/*
 tmp/*
 mybook-pdf/*
 mybook-md/*

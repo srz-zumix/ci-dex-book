@@ -646,6 +646,10 @@ dl.desc-list.compact > dd.desc::after {
 .balloon:before {
 	content: "←";
 }
+.term {
+	font-family: sans-serif;
+}
+
 
 .rebuild {
 	background: #eee;

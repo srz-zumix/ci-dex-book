@@ -1024,6 +1024,41 @@ module ReVIEW
       "``#{yield}''"
     end
 
+    ## 索引に載せる語句 (@<idx>{}, @<term>{})
+    def inline_idx(str)
+      s1, s2 = _compile_term(str)
+      "#{s1}\\index{#{s2}}"
+    end
+    def inline_hidx(str)
+      _, s2 = _compile_term(str)
+      "\\index{#{s2}}"
+    end
+    def inline_term(str)
+      s1, s2 = _compile_term(str)
+      "\\starterterm{#{s1}}\\index{#{s2}}"
+    end
+    def on_inline_termnoidx()
+      "\\starterterm{#{yield}}"
+    end
+
+    def _compile_term(str)
+      arr = []
+      placeholder = "\\starterindexplaceholder{}"
+      display_str, see = parse_term(str, placeholder) do |term, term_e, yomi|
+        if yomi
+          arr << "#{escape_index(escape_latex(yomi))}@#{term_e}"
+        elsif escape_index(term) != term_e
+          arr << "#{escape_index(term)}@#{term_e}"
+        else
+          arr << term_e
+        end
+      end
+      argstr = arr.join('!')
+      argstr += "|see{#{escape_latex(see)}}" if see
+      return display_str, argstr
+    end
+    private :_compile_term
+
   end
 
 

@@ -72,6 +72,32 @@ end
 
 
 ##
+## 初期設定
+##
+namespace :setup do
+
+  desc "+ install rubygems packages"
+  task :rubygems do
+    if ENV['GEM_HOME'].to_s.empty?
+      ENV['GEM_HOME'] = File.join(Dir.pwd, 'rubygems')
+      mkdir_p 'rubygems'
+    end
+    ruby_version = RUBY_VERSION.split('.').map(&:to_i)  # ex: "2.5.0" -> [2, 5, 0]
+    rubyzip_requires = [2, 4, 0]  # rubyzip >= 2.0 requires Ruby >= 2.4
+    ruby_too_old = (ruby_version <=> rubyzip_requires) < 0
+    sh "gem install rubyzip --version 1.3" if ruby_too_old
+    sh "gem install review --version 2.5"
+  end
+
+  desc "+ download docker image"
+  task :dockerimage do
+    sh "docker pull kauplan/review2.5"
+  end
+
+end
+
+
+##
 ## Markdownに変換する（主にtextlistを使うため）
 ##
 desc "+ convert '*.re' files into '*.md'"

@@ -45,7 +45,7 @@ module ReVIEW
         prepare_files()
         build_pdf(book)
       ensure
-        remove_entry_secure(@build_dir) unless @config['debug']
+        FileUtils.remove_entry_secure(@build_dir) unless @config['debug']
       end
     end
 
@@ -72,9 +72,9 @@ module ReVIEW
       if !File.directory?(dir)
         Dir.mkdir(dir)
       else
-        ## 目次と相互参照に関するファイルだけを残し、あとは削除
+        ## 目次と相互参照と索引に関するファイルだけを残し、あとは削除
         Pathname.new(dir).children.each do |x|
-          next if x.basename.to_s =~ /\.(aux|toc|out|mtc\d*|maf)\z/
+          next if x.basename.to_s =~ /\.(aux|toc|out|idx|ind|mtc\d*|maf)\z/
           x.rmtree()
         end
       end
@@ -143,7 +143,8 @@ module ReVIEW
 
     def absolute_path(filename)
       return nil unless filename.present?
-      filepath = File.absolute_path(filename, @basedir)
+      #filepath = File.absolute_path(filename, @basedir)
+      filepath = File.absolute_path(filename, '..')
       return File.exist?(filepath) ? filepath : nil
     end
 
@@ -176,14 +177,22 @@ module ReVIEW
         compile_ntimes = v.to_i
       elsif ENV['STARTER_CHAPTER'].present?
         compile_ntimes = 1
+      else
+        compile_ntimes = nil
       end
       run_latex(latex, texfile, compile_ntimes)
       #
       if mkidx_p  # 索引を作る場合
-        call_hook('hook_beforemakeindex')
-        usr_bin_time { run_cmd!("#{mkidx} #{base}") } if File.exist?(idxfile)
-        call_hook('hook_aftermakeindex')
-        run_latex!(latex, texfile)
+        changed = _files_changed?('*.ind') do
+          call_hook('hook_beforemakeindex')
+          usr_bin_time { run_cmd!("#{mkidx} #{base}") } if File.exist?(idxfile)
+          call_hook('hook_aftermakeindex')
+        end
+        if changed
+          run_latex(latex, texfile)
+        else
+          puts "[pdfmaker]### (info): index file not changed. skip latex compilation."
+        end
       end
       call_hook('hook_aftertexcompile')
       return unless File.exist?(dvifile)
@@ -220,14 +229,27 @@ module ReVIEW
       end
     end
 
+    private
+
     def _hash_auxfiles()
-      filenames = Dir.glob('*.{aux,toc}')
+      return _hash_files(Dir.glob('*.{aux,toc,idx}'))
+    end
+
+    def _files_changed?(filepat)
+      before = _hash_files(Dir.glob(filepat))
+      yield
+      after  = _hash_files(Dir.glob(filepat))
+      return before != after
+    end
+
+    def _hash_files(filenames)
       return filenames.each_with_object({}) do |filename, dict|
         s = File.read(filename)
-        dict[filename] = Digest::MD5.hexdigest(s)
+        dict[filename] = Digest::SHA1.hexdigest(s)
       end
     end
-    private :_hash_auxfiles
+
+    protected
 
     def print_latex_version(latex_cmd)
       output, ok = run_cmd_capturing_output("#{latex_cmd} --version", " | head -1")

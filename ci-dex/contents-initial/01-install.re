@@ -39,6 +39,9 @@ e-upTeX 3.14159265-p3.7.1-u1.22-161114-2.6 (utf8.uptex) (TeX Live 2017/Debian)
 ...(省略)...
 //}
 
+#@#なおmacOSのようにRubyが使える環境なら、「@<code>|docker pull kauplan/review2.5|」のかわりに「@<code>|rake setup:dockerimage|」を実行してもいいです（内部で同じことを行います）。
+なおmacOSのようにRubyが使える環境なら、「@<code>|rake setup:dockerimage|」を実行すると自動的に「@<code>|docker pull kauplan/review2.5|」が実行されます。
+
 
 === macOSを使っている場合
 
@@ -64,9 +67,37 @@ ruby 2.3.7p456 (2018-03-28 revision 63024) [universal.x86_64-darwin18]
 また必要なライブラリをインストールするために、以下のコマンドも実行してください（各行の先頭にある「@<code>{$ }」は入力せず、それ以降のコマンドを入力してください）。
 
 //terminal[][必要なライブラリをインストール]{
+### Rubyに詳しくない初心者向け
+$ @<userinput>{rake setup:rubygems}
+
+### Rubyに詳しい人向け
 $ @<userinput>{gem install review --version=2.5}
 $ @<userinput>{review version}
 2.5.0   @<balloon>{必ず「2.5.0」であること（より新しいバージョンは未サポート）}
+//}
+
+//note[macOS標準のRubyでは「gem install」がエラーになる]{
+macOSには標準でRubyがインストールされていますが、それを使って「@<code>|gem install|」を実行するとエラーになります。
+
+//terminal[][macOS標準のRubyではgemがインストールできない]{
+$ gem install review --version=2.5
+ERROR:  While executing gem ... (Gem::FilePermissionError)
+    You don't have write permissions for the /Library/Ruby/Gems/2.3.0 directory.
+//}
+
+このエラーを回避するには、次のような方法があります。
+
+ - (a) Homebrewなどを使って別のRubyをインストールする。
+ - (b) @<file>{~/.gemrc}に「@<code>{install: --user-install}」という行を追加する。
+ - (c) 「@<file>{rubygems/}」のようなフォルダを作り、そのパスを環境変数@<code>|$GEM_HOME|に設定する。
+
+しかしRubyやコマンドラインに慣れていない初心者にとっては、どの方法も難しいでしょう。
+
+そこで、(c)に相当する作業を自動的に行えるようにしました。
+それが、Rubyに詳しくない初心者向けのコマンド「@<code>|rake setup:rubygems|」です。
+詳しいことは@<file>{lib/tasks/starter.rake}の中の「@<code>|task :rubygems|」の定義を見てください。
+また環境変数@<code>|$GEM_HOME|を設定するかわりに、@<file>{Rakefile}の冒頭で@<code>|Gem.path|を設定しています。
+
 //}
 
 ==== MacTeXのインストール

@@ -253,7 +253,7 @@ end
     rexp = /([！？])$/
     if subtitle =~ rexp
       subtitle = subtitle.gsub(rexp) { "\\mbox{#{$1}}"  }
-    else
+    elsif !subtitle.empty?
       subtitle += " "
     end
     subtitle  = subtitle.gsub(/\n/) { "\\\\\n" }   # '\n' -> '\\'
@@ -264,6 +264,13 @@ end
     pubedition   = i18n.('edition')
     publisher    = @config.names_of("pbl").join(I18n.t("names_splitter"))
     published_by = i18n.('published_by', publisher)
+    #
+    latest_pubhist = pubhistory.lines[-1]
+    if latest_pubhist
+      if latest_pubhist =~ /\s*（.*）\z/
+        latest_pubhist = $`
+      end
+    end
  -%>
 %%%
 \makeatletter
@@ -271,7 +278,7 @@ end
 \def\@maintitle{<%= maintitle %>}
 \def\@subtitle{<%= subtitle %>}
 \def\@pubevent{<%= pubevent %>}
-\def\@latestpubhistory{<%= pubhistory.lines[-1] %>}
+\def\@latestpubhistory{<%= latest_pubhist %>}
 \author{<%= @authors %>}
 \date{<%= pubdate %> <%= pubedition %>\hspace{2zw}<%= published_by %>}
 \def\book@author{<%= escape(@book_author||'') %>}

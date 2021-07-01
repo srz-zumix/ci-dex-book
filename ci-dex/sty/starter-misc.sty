@@ -214,6 +214,8 @@
 
 %%% 章 (Chapter) のタイトルを独立したページにするコマンド。
 %%% 独立したページには、章タイトルと、章の概要と、章ごとの目次を含める。
+\usepackage{pagecolor}                  % for '\newpagecolor'
+\usepackage{afterpage}                  % for '\afterpage'
 \newcommand{\makechaptitlepage}[1]{%
   \pagecolor{starter@chaptitlepagecolor} % ページに背景色をつける
   %\addtolength{\linewidth}{-\parindent} % 目次の右側余白が左側より1文字分狭いことへの対策
@@ -680,6 +682,15 @@
 
 %% ノンブルの表示位置を計算する
 \newcommand{\starter@nombre@setup}{{%
+  %% 塗り足しの幅（印刷用PDFのみ）
+  \def\@bleed{0pt}%
+  \def\@tempa{pbook}%
+  \ifx\starter@target\@tempa%
+    \ifx\starter@bleedsize\empty\else%
+      \def\@bleed{\starter@bleedsize}%
+    \fi%
+  \fi%
+  %% 計算結果を \@tempdima に設定するヘルパーマクロ
   \def\@calc@##1{%
     \setlength{\@tempdima}{##1}%      % 長さを計算
     \edef\@tempa{\number\@tempdima}%  % 長さを整数値に変換（単位: sp）
@@ -687,11 +698,11 @@
     \divide \@tempcnta 65536 \relax%  % 単位をspからptに変換（1pt=65536sp）
   }%
   %% set `\starter@nombre@posy`: ノンブルのY座標は、用紙の高さ - 2mm
-  \@calc@{\dimexpr - \inv@mag in + \paperheight - \starter@nombre@bottommargin}%
+  \@calc@{\dimexpr - \inv@mag in + \paperheight - \starter@nombre@bottommargin - \@bleed}%
   \multiply \@tempcnta -1 \relax%
   \expandafter\gdef\expandafter\starter@nombre@posy\expandafter{\the\@tempcnta}%
   %% set `\starter@nombre@posx@odd`: 奇数ページでのノンブルのX座標は、ページ左端から1mm
-  \@calc@{\dimexpr - \inv@mag in + \starter@nombre@sidemargin}%
+  \@calc@{\dimexpr - \inv@mag in + \starter@nombre@sidemargin + \@bleed}%
   \expandafter\gdef\expandafter\starter@nombre@posx@odd\expandafter{\the\@tempcnta}%
   %% set `\starter@nombre@posx@even`: 偶数ページでのノンブルのX座標は、用紙の幅 - 1mm
   \settowidth{\@tempdimb}{{%          % ノンブルの数字1文字分の幅
@@ -699,7 +710,7 @@
     \fontsize{\starter@nombre@fontsize}{0}\selectfont%
     9%
   }}%
-  \@calc@{\dimexpr - \inv@mag in + \paperwidth - \@tempdimb - \starter@nombre@sidemargin}%
+  \@calc@{\dimexpr - \inv@mag in + \paperwidth - \@tempdimb - \starter@nombre@sidemargin - \@bleed}%
   \expandafter\gdef\expandafter\starter@nombre@posx@even\expandafter{\the\@tempcnta}%
 }}
 
@@ -743,6 +754,58 @@
       \starter@nombre@put             % ノンブルをつける
     }
   \fi%
+\fi
+
+
+
+%%%
+%%% 塗り足しの確認用に可視化する
+%%%
+\newcommand{\starter@bleed@colorize}[2]{{%  #1: page width, #2: page height
+  \def\@w{#1}%
+  \def\@h{#2}%
+  \setlength{\unitlength}{0.1truemm}%  % 0.1mmを単位とする
+  \color{\starter@bleedcolor}%         % 線の色 (red/green/blue/yellow/gray)
+  \begin{picture}(0,0)%
+    \put(-224,224){%            % 1inch - 3mm = 25.4mm - 3mm = 22.4mm
+      \line(0,-1){\@h}%         % 左
+      \line(1,0){\@w}%          % 上
+    }%
+    \@tempcnta=\@w%
+    \advance \@tempcnta -224%   % 1inch - 3mm = 25.4mm - 3mm = 22.4mm
+    \@tempcntb=\@h%
+    \advance \@tempcntb -224%
+    \edef\@tempa{(\@tempcnta,-\@tempcntb)}%
+    \expandafter\put\@tempa{%
+      \line(0,1){\@h}%          % 右
+      \line(-1,0){\@w}%         % 下
+    }%
+  \end{picture}%
+}}
+
+\usepackage{everypage}
+\ifx\starter@bleedcolor\empty\else
+  %
+  \def\@tempb{A4}%                      % A4 (210x297mm)
+  \ifx\starter@pagesize\@tempb%
+    \AddEverypageHook{\starter@bleed@colorize{2100}{2970}}%
+  \fi%
+  %
+  \def\@tempb{A5}%                      % A5 (148x210mm)
+  \ifx\starter@pagesize\@tempb%
+    \AddEverypageHook{\starter@bleed@colorize{1480}{2100}}%
+  \fi%
+  %
+  \def\@tempb{B5}%                      % B5 (182x257mm)
+  \ifx\starter@pagesize\@tempb%
+    \AddEverypageHook{\starter@bleed@colorize{1820}{2570}}%
+  \fi%
+  %
+  \edef\@tempb{B6}%                     % B6 (128x182mm)
+  \ifx\starter@pagesize\@tempb%
+    \AddEverypageHook{\starter@bleed@colorize{1280}{1820}}%
+  \fi%
+  %
 \fi
 
 
@@ -798,3 +861,34 @@
   \expandafter\includepdf\@arg\@tempdimb\@tempdimc\inv@mag\@pagenum{#2}%
 }}
 \def\starter@includepage@pagenum{}
+
+
+%%
+%% 索引
+%%
+\newcommand{\starterindexgroup}[1]{%  % 索引グループ
+  {%
+    \bfseries%                   % 太字
+    \gtfamily\sffamily%          % ゴシック体
+    ■#1%                        % 例：`■あ`
+  }%
+}
+%% 参考：美文書8版 第10.7節、第10.9節
+\renewcommand{\seename}{$\rightarrow$}                   % → XXXX
+%\renewcommand{\seename}{\textit{see}}                   % see XXXX
+%\renewcommand{\subitem}{\@idxitem \hspace*{1zw}}        % インデント幅を全角1文字に
+%\renewcommand{\subsubitem}{\@idxitem \hspace*{2zw}}     % インデント幅を全角2文字に
+\newcommand{\starterindexplaceholder}{%
+  %--%          % 欧文のエヌダッシュ
+  %---%         % 欧文のエムダッシュ
+  %―%          % 全角ダッシュ記号（長音記号と見分けがつきにくい）
+  \――%        % 倍角ダッシュ（defined in okumacro.sty）
+}
+
+
+%%
+%% 用語
+%%
+\newcommand{\starterterm}[1]{%
+  {\gtfamily\sffamily #1}%       % ゴシック体で表示
+}

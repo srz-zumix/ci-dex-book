@@ -1143,6 +1143,153 @@ module ReVIEW
       raise NotImplementedError.new("#{self.class.name}##{__method__}(): not implemented.")
     end
 
+    ## 索引に載せる用語（@<term>{}, @<idx>{}, @<hidx>{}）
+    def inline_idx(str)
+      raise NotImplementedError.new("#{self.class.name}##{__method__}(): not implemented yet.")
+    end
+    def inline_hidx(str)
+      raise NotImplementedError.new("#{self.class.name}##{__method__}(): not implemented yet.")
+    end
+    def inline_term(str)
+      raise NotImplementedError.new("#{self.class.name}##{__method__}(): not implemented yet.")
+    end
+    def inline_termnoidx(str)
+      raise NotImplementedError.new("#{self.class.name}##{__method__}(): not implemented yet.")
+    end
+    def parse_term(str, placeholder_str)
+      @terms_dict ||= {}   # key: term, value: yomigana
+      #
+      see = nil
+      if str =~ %r`==>>(.*?)\z`
+        str = $`
+        see = $1
+      end
+      #
+      display_str = ""
+      tmpchar = "\x08"
+      placeholder_rexp = TERM_PLACEHOLDER_REXP   # /---/
+      str.split('<<>>').each do |item|
+        if item =~ /\(\((.*?)\)\)\z/
+          term = $`
+          yomi = $1
+          @terms_dict[term] = yomi   # may override existing key
+        elsif @terms_dict[item]
+          term = item
+          yomi = @terms_dict[item]
+        else
+          term = item
+          yomi = _find_yomi(term)
+          @terms_dict[term] = yomi
+        end
+        if ! display_str.empty? && term =~ placeholder_rexp
+          display_str = compile_inline(term.gsub(placeholder_rexp, tmpchar)).gsub(tmpchar, display_str)
+        else
+          display_str += compile_inline(term)
+        end
+        term_e = compile_inline(term.gsub(placeholder_rexp, tmpchar))
+        term_e = escape_index(term_e).gsub(tmpchar, placeholder_str)
+        yield term, term_e, yomi
+      end
+      return display_str, see
+    end
+    protected :parse_term
+
+    TERM_PLACEHOLDER_REXP = /---/
+
+    def _find_yomi(term)
+      if @index_db
+        yomi = @index_db[term]
+        return yomi if yomi
+      end
+      return nil  if term =~ /\A[[:ascii:]]+\Z/ || @index_mecab.nil?
+      return _to_yomigana(term)
+    end
+    private :_find_yomi
+
+    def _to_yomigana(term)
+      return NKF.nkf('-w --hiragana', @index_mecab.parse(term).force_encoding('UTF-8').chomp)
+    end
+    private :_to_yomigana
+
+    def escape_index(str)
+      str
+    end
+
+    ## キーを単語へ展開する（@<w>{}, @<wb>{}, @<W>{}）
+    def inline_w(str)
+      key = str
+      @words_dict ||= _load_words_file(@book.config['words_file'], key)
+      unless @words_dict.key?(key)
+        filenames = [@book.config['words_file']].flatten
+        error "@<w>{#{key}}: key '#{key}' not found in words file (#{filenames.join(', ')})."
+      end
+      return escape(@words_dict[key])
+    end
+
+    def inline_wb(str)
+      inline_b(inline_w(str))
+    end
+
+    def inline_W(str)
+      inline_strong(inline_w(str))
+    end
+
+    private
+
+    def _load_words_file(words_files, key)
+      words_files.present?  or
+        error "`@<w>{#{key}}`: `words_file:` not configured in config.yml."
+      filepaths = [words_files].flatten.compact
+      filepaths.each do |filepath|
+        _validate_words_file(filepath, key)
+      end
+      #
+      dict = {}
+      filepaths.each do |filepath|
+        case filepath
+        when /\.csv/i
+          _load_words_file_csv(filepath, dict)
+        when /\.tsv/i, /\.txt/i
+          _load_words_file_txt(filepath, dict)
+        else
+          raise "uneachable: filepath=#{filepath.inspect}"
+        end
+      end
+      return dict
+    end
+
+    def _validate_words_file(filepath, key)
+      File.exist?(filepath)  or
+        error "`@<w>{#{key}}`: words file `#{filepath}` not found."
+      File.file?(filepath)  or
+        error "`@<w>{#{key}}`: words file `#{filepath}` should be a file, but not."
+      File.readable?(filepath)  or
+        error "`@<w>{#{key}}`: cannot read words file `#{filepath}`."
+      filepath =~ /\.(csv|tsv|txt)/i  or
+        error "`@<w>{#{key}}`: words file `#{filepath}` should be *.csv, *.tsv, or *.txt."
+    end
+
+    def _load_words_file_csv(filepath, dict)
+      require 'csv'
+      CSV.read(filepath, :encoding=>'utf-8').each do |row|
+        next if row.length < 2
+        key, val, = row
+        dict[key] = val if key.present? && val.present?
+      end
+      return dict
+    end
+
+    def _load_words_file_txt(filepath, dict)
+      File.open(filepath, :encoding=>'utf-8') do |f|
+        f.each do |line|
+          next if line =~ /\A\#/
+          key, val, = line.chomp.split(/\t+/)
+          dict[key] = val if key.present? && val.present?
+        end
+      end
+      return dict
+    end
+
   end
 
 

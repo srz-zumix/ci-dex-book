@@ -18,6 +18,12 @@ starter:
   ## ・B5 … 少年ジャンプ、ジャポニカ学習帳の大きさ
   pagesize:  B5            # A5 or B5
 
+  ## 上下左右の塗り足し幅（印刷用PDFのみ）
+  ## （参考：https://www.eikou.com/making/basis#nuritashi ）
+  bleedsize:           # 通常は指定しなくてよい
+  #bleedsize: 3mm      # 背景色を使うなら、上下左右に3mmの塗り足しが必要
+  bleedcolor:          # 通常は無指定、確認時のみ使用（red/blue/green/yellow/gray）
+
   ## フォントサイズ
   ## ・A5なら「9pt」、B5なら「10pt」を推奨
   ## ・初心者向け入門書なら大きめにして、A5「10pt」、B5「11pt」を推奨
@@ -84,7 +90,7 @@ starter:
   section_notopmargin: true
 
   ## 節 (Section) タイトルの装飾
- ## （none: なし、underline: 下線、grayback: 灰色の背景色、
+  ## （none: なし、underline: 下線、grayback: 灰色の背景色、
   ##   leftline: 左に縦線、numbox: 節番号を黒背景に、circle: 円）
   ## （節タイトルが長くて二行になる場合は「leftline」「numbox」「circle」がお勧め）
   section_decoration: underline
@@ -103,7 +109,7 @@ starter:
   ## キャプション直後での改ページを防ぐために、最低限必要とする高さ
   ## （もしキャプション直後での改ページが発生するなら値を増やす。
   ##   もし十分なスペースがあるのに改ページされるなら値を減らす。）
-  caption_needspace: 4.0zh        # 全角文字4.6個分の高さ（実験で得た境界値）
+  caption_needspace: 4.0zh        # 全角文字4個分の高さ（実験で得た境界値）
 
   ## プログラム用（//list）の等幅フォント。
   ##  * lmodern … LaTeXのデフォルト。1とl、0とOが見分けにくい。太字が目立たない。
@@ -131,7 +137,7 @@ starter:
   ## 詳細は https://twitter.com/_kauplan/status/1162167825407963137
   terminal_widen:  0.0mm         # 0.3mmとか
 
- ## プログラム（//list）のデフォルトオプション
+  ## プログラム（//list）のデフォルトオプション
   ## （注：YAMLでは `on, off, ~` は `true, false, null` と同じ）
   program_default_options:
     fold:        on        # on なら長い行を右端で折り返す
@@ -213,7 +219,9 @@ starter:
   linkurl_footnote: true   # trueならリンクのURLを脚注に埋め込む（お勧め）
 
   ## @<secref>{}において、親の節のタイトルを含めるか？
-  secref_parenttitle: true # trueなら親の節のタイトルを含める## PDF中のテキストをマウスで選択したとき、折り返し記号やインデント記号を選択対象から外すか？
+  secref_parenttitle: true # trueなら親の節のタイトルを含める
+
+  ## PDF中のテキストをマウスで選択したとき、折り返し記号やインデント記号を選択対象から外すか？
   ## ・trueだとコンパイル時間が大幅に増えるので、デフォルトではfalse。
   ## ・環境変数「$STARTER_EXCLUDE_MOUSESELECT=on」でもtrueにできる。
   ## ・AcrobatReaderでは機能するが、macOS Preview.appでは機能しない。

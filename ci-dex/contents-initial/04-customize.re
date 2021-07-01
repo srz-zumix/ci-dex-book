@@ -215,6 +215,59 @@ Starterでは、印刷用PDFではページ左右の余白幅を変えていま�
 通常は、このような変更は必要ないはずです。
 
 
+==={subsec-bleed} [PDF] 塗り足しをつける
+
+印刷所に入稿するとき、本文の全ページに上下左右3mmの「塗り足し」が必要になることがあります。
+塗り足しについては次のページなどを参考にしてください。
+
+ * 原稿作成の基礎知識：塗り足し（同人誌印刷栄光）@<br>{}
+   @<href>{https://www.eikou.com/making/basis#nuritashi}
+ * 原稿作成マニュアル：印刷範囲と塗り足し（同人誌印刷の緑陽社）@<br>{}
+   @<href>{https://www.ryokuyou.co.jp/doujin/manual/basic.html#nuritashi}
+
+塗り足しは、技術系同人誌の本文ではたいていの場合必要ありませんが、次のような場合は必要です。
+
+ * ページ端まで絵や線が描かれている場合
+ * 背景色をつけたページがある場合（大扉や章扉など）
+
+//note[技術系同人誌でも表紙と裏表紙には塗り足しが必要]{
+同人誌作成の経験がない方のために補足説明をします。
+
+ * 印刷所に入稿するとき、表紙や裏表紙と、本文とは別のPDFファイルにします。
+   前者はカラー印刷、後者は白黒印刷です。
+ * 表紙や裏表紙では背景色をつけることがほとんどなので、塗り足しが必要です。
+ * マンガ系の同人誌では背景色があったりページ端まで絵を描くことがあるので、塗り足しが必要です。
+   同人誌印刷所のサイトで「塗り足しは必須です」と説明されているのは、マンガ同人誌を前提としているからです。
+ * 技術系同人誌の本文では背景色をつけないしページ端まで何かを描くこともないので、塗り足しは必要ありません。
+   ただしこれは印刷所によって違う可能性があるので、詳しくは入稿先の印刷所に聞いてみてください。
+ * 塗り足しが必要ないのに塗り足しをつけてしまっても、問題ありません。
+ * 塗り足しは印刷するときにのみ必要であり、印刷しないなら必要ありません。
+//}
+
+Starterでは、塗り足しをつける設定が用意されています。
+
+//list[][@<file>{configi-starter.yml}：塗り足しをつける]{
+  ## 上下左右の塗り足し幅（印刷用PDFのみ）
+  bleedsize: 3mm      # 上下左右に3mmの塗り足しをつける
+//}
+
+塗り足しがつくのは印刷用PDFのみであり、電子用にはつきません@<fn>{fn-alz7r}。
+また塗り足しは上下左右につくので、塗り足し幅が3mmだとページサイズの縦と横は6mmずつ増えます。
+
+//footnote[fn-alz7r][印刷用PDFと電子用PDFの違いについては、@<secref>{02-tutorial|sec-pdftype}を参照してください。]
+
+
+=== [PDF] 塗り足しを可視化する
+
+塗り足しがどのくらいの幅を取るのか、見た目で確認したい人もいるでしょう。
+そのような場合は、@<file>{config-starter.yml}で「@<code>|bleedcolor: blue|」のように指定してください。
+すると塗り足しが可視化されます。
+色はred/green/blue/yello/grayなどが使えます。
+
+この機能は、あくまで確認用のみで使ってください。
+入稿するときは必ず設定を外してください。
+
+
 === [PDF] 章の右ページ始まりをやめる
 
 横書きの本では、章(Chapter)を見開きの右ページから始めるのが一般的です。
@@ -577,6 +630,23 @@ Starterでは、章(Chapter)ごとにタイトルページをつけられます�
 これは読者にとって便利なので、特にページ数の多い本では章ごとのタイトルページをつけることをお勧めします。
 
 
+=== [PDF] 章扉に背景色をつける
+
+章扉には、デフォルトでは背景色がついていませんが、背景色をつけると見栄えがかなりよくなります。
+
+背景色は@<file>{sty/config-color.sty}において「@<code>{starter@chaptitlepagecolor}」という名前で定義されているので、これを上書き設定すれば変更できます。
+設定は@<file>{sty/mystyle.sty}で行うといいでしょう。
+
+//list[][@<file>{sty/mystyle.sty}：章扉の背景色を設定する]{
+\definecolor{starter@chaptitlepagecolor}{gray}{0.9}% 明るいグレー
+//}
+
+また章扉に背景色を設定した場合は、印刷用PDFの上下左右に3mmずつの「塗り足し」をつけるのが望ましいです。
+そのためには、@<file>{config-starter.sty}で「@<code>{bleedsize: 3mm}」を設定してください。
+この設定は印刷用PDFでのみ機能し、電子用PDFでは無視されます。
+詳しくは@<secref>{subsec-bleed}を参照してください。
+
+
 ==={subsec-newpagepersec} [PDF] 節ごとに改ページする
 
 初心者向けの入門書では、節(Chapter)ごとに改ページするデザインが好まれます。
@@ -744,9 +814,10 @@ macOS以外の場合は、「画像をPDFに変換」などでGoogle検索する
 表紙や裏表紙のPDFファイルを印刷所に入稿するには、通常のA5やB5に上下左右3mmずつを加えたサイズのPDFファイルを使います。
 この上下左右3mmの部分を「塗り足し」といいます@<fn>{fn-lmc7a}。
 
-//footnote[fn-lmc7a][参考：@<href>{https://www.eikou.com/making/basis#nuritashi}]
+//footnote[fn-lmc7a][塗り足しについては@<secref>{subsec-bleed}も参照してください。]
 
-つまり印刷用の表紙や裏表紙は少し大きいので、電子用PDFに取り込む場合は塗り足し部分を除いたうえで取り込む必要があります。
+つまり印刷用の表紙や裏表紙は、塗り足しの分だけ縦横サイズが少し大きいのです。
+そのため印刷用の表紙や裏表紙を電子用PDFに取り込むには、塗り足し部分を除いたうえで取り込む必要があります。
 
 StarterではPDFファイル名の後ろに「@<code>|*|」をつけると、塗り足し部分を除いて取り込んでくれます。
 PDFのページ番号も一緒に指定する場合は「@<code>|cover.pdf<2>*|」のように指定してください。
@@ -883,6 +954,64 @@ additional:
 
  * 「@<file>{sty/mytitlepage.sty}」において、「@<code>|\newcommand{\mytitlenextpage}|」を「@<code>|\newcommand{\@mytitlenextpage}|」に変更する。
  * 「@<file>{sty/mystyle.sty}」において、「@<code>|\let\mytitlenextpage=\undefined}|」という記述を追加する。
+
+
+
+=={sec-index} 索引
+
+
+=== [PDF] 用語のグループ化を文字単位にする
+
+索引ページでは、用語が「あ か さ た な は ……」のように行単位でグループ化されます。
+これを「あ い う え お か き ……」のように文字単位でグループ化するには、@<file>{config.yml}の「@<code>|makeindex_options: "-q -g"|」から「@<code>{-g}」を取り除いてください。
+
+
+=== [PDF] 連続したピリオドのかわりに空白を使う
+
+索引ページにて用語とページ番号との間は、デフォルトでは連続したピリオドで埋めています。
+これを空白で埋めるよう変更するには、@<file>{sty/indexsty.ist}を編集してください。
+
+//list[][@<file>{sty/indexsty.ist}]{
+## 用語とページ番号との間をピリオドで埋める
+#delim_0 "\\quad\\dotfill ~"
+#delim_1 "\\quad\\dotfill ~"
+#delim_2 "\\quad\\dotfill ~"
+
+## 用語とページ番号との間を空白で埋める
+delim_0 "\\quad\\hfill"
+delim_1 "\\quad\\hfill"
+delim_2 "\\quad\\hfill"
+//}
+
+なお@<file>{sty/indexsty.ist}の中の設定項目については、@<href>{http://tug.ctan.org/info/mendex-doc/mendex.pdf, mendexコマンドのマニュアル}を参照してください。
+mendexコマンド（またはupmendexコマンド）のオプションについても記載されています。
+
+
+=== [PDF] 用語見出しのデザインを変更する
+
+索引ページの用語見出しは「■あ」「■か」のようになっています。
+このデザインは@<file>{sty/starter-misc.sty}の「@<code>|\starterindexgroup|」で設定されています。
+変更するには「@<code>|\starterindexgroup|」の定義を@<file>{sty/starter-misc.sty}から@<file>{sty/mystyle.sty}にコピーして、「@<code>|\newcommand|」を「@<code>|\renewcommand|」に変更して中身をカスタマイズしてください。
+
+//list[][@<file>{sty/mystyle.sty}]{
+\renewcommand{\starterindexgroup}[1]{%  % 索引グループ
+  {%
+    \bfseries%                   % 太字
+    \gtfamily\sffamily%          % ゴシック体
+    ■#1%                        % 例：`■あ`
+  }%
+}
+//}
+
+また@<file>{sty/indexsty.ist}を編集すると、別の@<LaTeX>{}マクロ名を指定できます。
+
+
+=== [PDF] その他
+
+ * 索引ページにおいて子要素の用語で使う「――」は、@<file>{sty/starter-misc.sty}の「@<code>|\starterindexplaceholder|」で定義されています。
+ * 「@<code>|@@<nop>{}<term>{}|」で表示するフォントは、@<file>{sty/starter-misc.sty}の「@<code>|\starterterm|」で定義されています。
+   デフォルトではゴシック体にで表示するように定義されています。
+ * 用語の転送先を表す「→」を別の記号や文字列に変更するには、@<file>{sty/mystyle.sty}にたとえば「@<code>|\renewcommand{\seename}{\textit{see: }}|」のように書きます。
 
 
 

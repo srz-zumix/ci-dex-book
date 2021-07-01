@@ -820,7 +820,8 @@ module ReVIEW
     def inline_hlink(str)
       url, label = str.split(/, /, 2)
       flag_link = @book.config['externallink']
-      return _inline_hyperlink(url, escape(label), flag_link)
+      label_ = label.present? ? escape(label) : nil
+      return _inline_hyperlink(url, label_, flag_link)
     end
 
     def _inline_hyperlink(url, escaped_label, flag_link)
@@ -857,6 +858,40 @@ module ReVIEW
       s = "#{I18n.t('equation')}#{chapter.number}.#{number}"
       "<a>#{escape(s)}</a>"
     end
+
+    ## 索引に載せる語句 (@<idx>{}, @<term>{})
+    public
+    def inline_idx(str)
+      s1, s2 = _compile_term(str)
+      %Q`<span class="index" title="#{s2}">#{s1}</span>`
+    end
+    def inline_hidx(str)
+      _, s2 = _compile_term(str)
+      %Q`<span class="index" title="#{s2}"></span>`
+    end
+    def inline_term(str)
+      s1, s2 = _compile_term(str)
+      %Q`<span class="index term" title="#{s2}">#{s1}</span>`
+    end
+    def on_inline_termnoidx(str)
+      %Q`<span class="term">#{yield}</span>`
+    end
+
+    def _compile_term(str)
+      arr = []
+      placeholder = "---"
+      display_str, see = parse_term(str, placeholder) do |term, term_e, yomi|
+        if yomi
+          arr << escape(yomi)
+        else
+          arr << term_e
+        end
+      end
+      title_attr = arr.join()
+      title_attr += " → see: #{escape(see)}" if see
+      return display_str, title_attr
+    end
+    private :_compile_term
 
   end
 
