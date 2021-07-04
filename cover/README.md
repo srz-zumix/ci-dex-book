@@ -7,8 +7,9 @@
   * pro.foto
     * [青く輝く海とセブンティアイランド 広海 umi0230-009 無料画像ダウンロード](https://pro-foto.jp/free/product_dl.php/cPath/21_25_33/products_id/4812)
     * [北海道 青空と雪原](https://pro-foto.jp/free/product_dl.php/cPath/21_25_38/products_id/661)
-  * [フリー素材ぱくたそ（www.pakutaso.com）](www.pakutaso.com)
+  * [フリー素材ぱくたそ（www.pakutaso.com）](https://www.pakutaso.com)
     * [樹氷原に残る足跡のフリー素材](https://www.pakutaso.com/20200250041post-25576.html)
+    * [ダイビングポイントへ向かう船上の酸素ボンベの写真素材](https://www.pakutaso.com/20190450106post-19372.html)
 * 帯カラー (#98d2e3)
 * タイトル
   * color: #ffffff
@@ -39,7 +40,7 @@
   * #795028
   * shadow #d7884f
   * box: X x 160
-  * 厳選 13 サービスの CI サービスを紹介・徹底比較
+  * 厳選 14 サービスの CI サービスを紹介・徹底比較
   * 各サービスの YAML 実例つき！
 
 ## cover4
