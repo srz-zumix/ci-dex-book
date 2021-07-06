@@ -6,7 +6,7 @@
 
 ## Releases
 
-* ![技術書典11](https://img.shields.io/badge/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B811-New-green) 2021/07/10
+* ![技術書典11](https://img.shields.io/badge/%E6%8A%80%E8%A1%93%E6%9B%B8%E5%85%B811-New-yellow) 2021/07/10
   * [技術書典マーケット](https://techbookfest.org/product/6495998996119552)
   * [Booth](https://srz-zumix.booth.pm/items/3099669)
     * [2020-2021セット販売](https://srz-zumix.booth.pm/items/2657500)
