@@ -4,7 +4,7 @@ PREDEF:
 CHAPS:
   - 無料で使える CI サービス紹介:
     - c001-free-ci.re
-    - c002-history.re
+    # - c002-history.re
     - c010-appveyor.re
     - c010-azure-pipelines.re
     - c010-bitrise.re

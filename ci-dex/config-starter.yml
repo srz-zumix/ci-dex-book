@@ -263,3 +263,6 @@ starter:
     ## アイコン画像を使わない場合
     #"b1":        {name: "アリス"}
     #"g1":        {name: "ボブ"}
+
+  # ソースの行番号を選択対象外にする
+  exclude_mouseelect: true1
