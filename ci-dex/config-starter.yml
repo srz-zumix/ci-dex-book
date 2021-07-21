@@ -265,4 +265,4 @@ starter:
     #"g1":        {name: "ボブ"}
 
   # ソースの行番号を選択対象外にする
-  exclude_mouseelect: true1
+  exclude_mouseelect: true
